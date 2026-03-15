@@ -192,7 +192,7 @@ A estrutura principal do backend é composta pelos seguintes diretórios:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/Estrutura-backend.png}
-    \caption{Diagrama de Arquitetura do Sistema. Fonte: Autor}
+    \caption{Estrutura de diretórios do projeto. Fonte: Autor}
     \label{fig:Representação da estrutura de diretórios do backend da plataforma.}
 \end{figure}
 
@@ -325,15 +325,28 @@ O controle de acesso é implementado sob o paradigma de \textit{RBAC} (\textit{R
 
 As senhas dos usuários não são armazenadas em formato de texto plano. O sistema utiliza a técnica de \textit{salting} e \textit{hashing} criptográfico por meio do algoritmo \textit{bcrypt} (via biblioteca \textit{Passlib}), garantindo a resistência contra ataques de dicionário e \textit{rainbow tables}.
 
-\subsection{Integridade de Logs} 
+\subsection{Integridade e Imutabilidade de Logs} 
 
-Para garantir a integridade dos registros de auditoria, foi implementado um mecanismo de encadeamento criptográfico (\textit{hash chaining}) processado de forma assíncrona por um \textit{worker} especializado em segundo plano. Cada registro de auditoria possui um \textit{hash} SHA-256 calculado a partir de uma semente que contém os metadados do evento (ID do usuário, ação realizada, entidade afetada) e o \textit{hash} do registro imediatamente anterior.
+Para garantir a integridade dos registros de auditoria, foi implementado um mecanismo de encadeamento criptográfico (\textit{hash chaining}) processado de forma assíncrona por um \textit{worker} especializado em segundo plano. Essa técnica, inspirada em princípios de estruturas de dados de \textit{blockchain}, garante que cada registro esteja matematicamente vinculado ao seu predecessor, tornando qualquer tentativa de retroalteração detectável.
 
-Caso o evento envolva dados sensíveis (alteração de prontuário, por exemplo), os valores são submetidos a um processo de criptografia simétrica (\textit{Fernet/AES}) antes de serem persistidos na base de dados de auditoria. Matematicamente, o encadeamento é definido pela função recursiva:
+Cada registro de auditoria possui um \textit{hash} SHA-256 calculado a partir de uma semente $S_n$ que contém os metadados do evento (ID do usuário, ação realizada, entidade afetada e \textit{timestamp}) e o \textit{hash} do registro imediatamente anterior ($H_{n-1}$). A fim de garantir o determinismo do \textit{hash} --- assegurando que o mesmo conjunto de dados resulte invariavelmente no mesmo valor binário --- a semente $S_n$ é serializada em formato JSON com chaves ordenadas (\textit{sort\_keys=True}) antes do processo de \textit{hashing}.
 
-\[ H_n = SHA256(S_n + H_{n-1}) \] 
+Caso o evento envolva dados sensíveis, como a alteração de prontuários psicológicos, os valores são submetidos a um processo de criptografia simétrica (\textit{AES-128} via especificação \textit{Fernet}) utilizando uma chave mestra (\textit{AUDIT\_MASTER\_KEY}) armazenada em variáveis de ambiente. É importante ressaltar que a criptografia ocorre \textbf{antes} da geração do \textit{hash}, garantindo que a integridade seja verificada sobre o dado exatamente como ele é persistido no banco de dados.
 
-Onde $S_n$ representa a semente serializada do evento $n$ e $H_{n-1}$ o \textit{hash} do evento anterior. Esse modelo garante a imutabilidade lógica dos registros históricos, visto que qualquer alteração em um bloco anterior invalidaria toda a cadeia subsequente.
+Matematicamente, o encadeamento é definido pela função recursiva:
+
+\[ H_n = \text{SHA256}(S_n \parallel H_{n-1}) \] 
+
+Onde:
+\begin{itemize}
+    \item $S_n$: representa a semente serializada de forma determinística contendo os dados (criptografados ou não) do evento $n$;
+    \item $\parallel$: representa a operação de concatenação de \textit{strings};
+    \item $H_{n-1}$: representa o \textit{hash} do evento anterior.
+\end{itemize}
+
+\textbf{Tratamento do Bloco Gênese:} Para o registro inicial do sistema ($n=0$), onde não há um predecessor, o valor de $H_{-1}$ é definido como uma constante fixa de 64 caracteres hexadecimais (zeros), servindo como a âncora de confiança da cadeia de custódia.
+
+\textbf{Segurança em Nível de Persistência:} Para reforçar a imutabilidade além da lógica de aplicação, foram implementados \textit{Triggers} (Gatilhos) diretamente no SGDB MySQL. Estes gatilhos bloqueiam explicitamente qualquer operação de \textit{UPDATE} ou \textit{DELETE} na tabela de auditoria, disparando um sinal de erro (\textit{SQLSTATE '45000'}) caso haja uma tentativa de violação. Dessa forma, os logs tornam-se registros permanentes e invioláveis, em plena conformidade com os requisitos de rastreabilidade e transparência estabelecidos pela Lei Geral de Proteção de Dados (LGPD).
 
 \section{Interfaces do Sistema}
 
