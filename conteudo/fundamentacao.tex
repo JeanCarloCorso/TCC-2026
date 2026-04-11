@@ -140,7 +140,7 @@ Esse método é amplamente empregado em jogos, robótica e na otimização de pr
 
 \subsection{Processamento de Linguagem Natural (NLP – Natural Language Processing)}
 
-Esse método é amplamente empregado em jogos, robótica e na otimização de processos complexos. No setor da saúde, pode ser aplicado para personalizar tratamentos, ajustando doses de medicamentos ou sugerindo planos terapêuticos adaptados à resposta individual de cada paciente \cite{ludermir2021inteligencia}.O Processamento de Linguagem Natural (PLN) constitui um ramo da inteligência artificial voltado para a interação entre máquinas e a linguagem humana. Sua finalidade essencial é possibilitar que os computadores não apenas compreendam e interpretem textos, mas também sejam capazes de gerá-los de forma semelhante à comunicação humana. Para isso, o NLP envolve o processamento e a análise de extensos conjuntos de dados textuais, permitindo a extração de informações relevantes e aprimorando a interação entre pessoas e sistemas computacionais \cite{stryker2024o}.
+O Processamento de Linguagem Natural (PLN ou NLP, do inglês \textit{Natural Language Processing}) constitui um subcampo da inteligência artificial focado na interação entre máquinas e a linguagem humana. Sua finalidade essencial é possibilitar que os computadores compreendam e interpretem textos, além de serem capazes de gerá-los de forma semelhante à comunicação humana. Para isso, o NLP envolve o processamento de extensos conjuntos de dados textuais, permitindo a extração de informações relevantes e otimizando a interface humano-computador \cite{stryker2024o}.
 
 Uma das inúmeras aplicações da NLP é a sumarização automática de textos médicos, que possibilita a condensação de grandes quantidades de informação em resumos objetivos, facilitando a assimilação rápida por médicos e demais profissionais da área. Além disso, sistemas como o Watson, da IBM, empregam técnicas avançadas de NLP para processar e interpretar vastos conjuntos de dados médicos, contribuindo significativamente para o diagnóstico e a definição de estratégias terapêuticas.
 
@@ -164,60 +164,13 @@ Modelos como o BERT e o GPT têm se mostrado especialmente úteis para interpret
 Dessa forma, o NLP fornece ferramentas valiosas para a psicologia, aprimorando a capacidade de análise e interpretação de textos clínicos. Isso não apenas contribui para diagnósticos mais precisos, mas também favorece a adoção de estratégias de intervenção mais eficazes, beneficiando tanto profissionais quanto pacientes.
 
 
-\section{REDES NEURAIS ARTIFICIAIS}
+\section{REDES NEURAIS ARTIFICIAIS E TRANSFORMERS}
 
-As redes neurais artificiais (RNA’s) são sistemas paralelos distribuídos compostos por unidades de processamento simples (neurônios artificiais) que calculam determinadas funções matemáticas, seu objetivo é imitar o comportamento do cérebro biológico, porém possuem um número muito inferior de neurônios, estes neurônios podem processar inumeras variaveis ao mesmo tempo. O grande diferencial das RNA’s para outros sistemas é a capacidade de interpretar o meio externo e se adaptar a ele\cite{finocchio2014nocoes, braga2014redes}.
+As Redes Neurais Artificiais (RNAs) são modelos computacionais inspirados no sistema nervoso biológico, compostas por nós processadores interconectados (neurônios artificiais). Seu grande diferencial é a capacidade de aprender padrões complexos diretamente a partir de dados, ajustando pesos sinápticos ao longo de um processo de treinamento para minimizar erros de previsão e viabilizar a generalização em situações inéditas \cite{braga2014redes}.
 
-\subsection{Neurônio artificial}
+Embora existam arquiteturas clássicas, como as redes \textit{feedforward} e as redes neurais recorrentes (RNNs), o avanço recente no campo da linguagem natural foi impulsionado pela arquitetura \textbf{Transformer}, introduzida por Vaswani et al. (2017). Ao contrário de abordagens sequenciais, o Transformer processa os dados em paralelo e utiliza mecanismos de \textit{self-attention} (autoatenção), que permitem ao modelo ponderar a relevância de diferentes palavras (ou \textit{tokens}) no mesmo contexto linguístico, independentemente da distância entre elas no texto.
 
-O neurônio biológico é uma célula altamente especializada, responsável por transmitir sinais elétricos e químicos no cérebro e sistema nervoso. Possui um corpo celular com núcleo e organelas, dendritos que recebem os sinais elétricos e um axônio longo que transmite os sinais para outras células nervosas. Os sinais elétricos são transmitidos por meio da diferença de carga elétrica entre o interior e o exterior da célula, que é mantida pelas bombas de íons e canais iônicos presentes na membrana celular.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\linewidth]{images/neuronio-biologico.png}
-    \caption{Estrutura de um neurônio: o sinal elétrico é levado do corpo celular para os terminais do axônio, onde é iniciada uma nova sinapse. Fonte: \cite{duarte2015interface}.}
-    \label{fig:neuronio-biologico}
-\end{figure}
-
-Já o modelo matemático do neurônio artificial é uma simplificação dessa estrutura biológica. Ele é composto por várias entradas (dendritos) que recebem os valores x1, x2, x3, …, xn correspondentes as ativações dos neurônios anteriores, possui também um terminal de saída y que representa o axônio do neurônio biológico. Cada entrada do neurônio artificial possui um peso, chamado de peso sináptico, dado por w, os pesos servem para o neurônio artificial identificar o grau de relevância daquela entrada\cite{braga2014redes}. O neurônio artificial está representado na figura abaixo.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\linewidth]{images/neuronio-artificial.png}
-    \caption{Representação esquemática de um neurônio artificial. As entradas \( x_1, x_2, x_3 \) são multiplicadas por seus respectivos pesos sinápticos \( w_1, w_2, w_3 \), resultando em uma soma ponderada. Essa soma é então processada por uma função de ativação, produzindo a saída \( y \). Fonte: \cite{giacomel2016metodo}}
-    \label{fig:neuronio-artificial}
-\end{figure}
-
-\subsection{Função de ativação}
-
-A função de ativação é responsável por gerar a saída do neurônio a partir da somatória das entradas com seus respectivos pesos. Esta função tem efeito apenas no neurônio em que ela está empregada.
-
-As funções de ativação mais comumente utilizadas são: função logística e função tangente hiperbólica. A função logística ou sigmóide é dada por:
-
-\[
-\sigma(x) = \frac{1}{1 + e^x}
-\]
-
-Esta função de ativação foi amplamente utilizada em RNAs por ser mais parecido com a biologia pois como neurônios biológicos funcionam de forma binária, a função sigmóide é uma boa forma de modelar esse comportamento, já que assume valores apenas entre 0 e 1 \cite{facure2017funcoes}.
-
-Similar a função sigmóide a função tangente hiperbólica varia de -1 a 1. \cite{facure2017funcoes} diz que por se aproximar mais da identidade a função tangente hiperbólica é melhor do que a sigmóide para as camadas ocultas. A função tangente hiperbólica é dada por:
-
-\[
-\tanh(x) = 2\sigma(2x) - 1 \quad \text{e} \quad \tanh'(x) = 1 - \tanh^2(x)
-\]
-
-\subsection{RNA Feedforward}
-
-Também chamada de acíclica, neste tipo de rede todas as saídas dos neurônios estão direcionados para as entradas dos neurônios da próxima camada, a saída de um neurônio deve servir de entrada para todos os neurônios da camada superior e não é permitido o retorno da informação. Desta forma a rede segue em apenas um sentido, sempre para frente, como mostra a figura abaixo. Este tipo de rede é bastante utilizado em problemas não lineares para a classificação e reconhecimento de padrões \cite{ufsc2002introducao}.
-
-Para que este estilo de RNA resolva um problema deve-se fornecer os dados para os neurônios de primeira camada, e desta forma os dados serão processados e enviados para as próximas camadas até chegar a camada de saída com o resultado obtido \cite{giacomel2016metodo}.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\linewidth]{images/rede-neural.png}
-    \caption{Representação esquemática de uma rede neural artificial. Fonte: autor}
-    \label{fig:rede-neural-artificial}
-\end{figure}
+Essa arquitetura viabilizou a criação dos \textit{Large Language Models} (LLMs), sistemas com bilhões de parâmetros treinados em vastos conjuntos de dados não estruturados. Modelos generativos como o GPT e o LLaMA operam predizendo a probabilidade da próxima palavra (\textit{next token prediction}) com base no contexto prévio fornecido (\textit{prompt}). É importante destacar a diferença pragmática entre o \textbf{treinamento} (fase custosa em recursos computacionais, onde o LLM ajusta seus pesos após ser exposto a trilhões de dados linguísticos) e a \textbf{inferência} (a fase de execução local onde o modelo, de posse de seus pesos calibrados, processa um \textit{prompt} novo e formula uma saída, configurando-se na funcionalidade perceptível aos usuários) \cite{touroude2023llama}.
 
 \subsection{Fine-Tuning de Modelos de IA}
 
@@ -233,6 +186,16 @@ Além disso, a interpretabilidade dos modelos de IA é uma preocupação signifi
 
 Outro desafio relevante é o potencial viés presente nos dados utilizados para treinar os modelos de IA. Dados históricos podem refletir desigualdades e preconceitos existentes no sistema de saúde, levando os modelos a perpetuar ou até amplificar essas distorções. Isso é particularmente preocupante em contextos de saúde mental, onde fatores socioeconômicos, culturais e étnicos influenciam significativamente os diagnósticos e tratamentos. Portanto, é fundamental implementar práticas de auditoria e validação contínua dos modelos, garantindo que suas decisões sejam justas e equitativas para todos os grupos populacionais \cite{souza2024desafios}.
 
+\subsection{Alucinações em Modelos de Linguagem}
+
+Apesar dos avanços significativos dos modelos de linguagem de grande escala (LLMs) na área da saúde, um dos principais desafios associados à sua utilização está relacionado ao fenômeno conhecido como “alucinação”. Esse fenômeno ocorre quando o modelo gera informações que, embora sejam linguisticamente coerentes e contextualmente plausíveis, são faticamente incorretas, inconsistentes com os dados de entrada ou completamente fabricadas \cite{ji2023survey}.
+
+Tal comportamento decorre da natureza probabilística desses modelos, baseados na predição do próximo token (\textit{next token prediction}), o que os leva a priorizar a continuidade estatística do texto em detrimento da veracidade factual. Como consequência, os LLMs podem produzir respostas que aparentam confiabilidade, mas que não possuem respaldo na realidade ou no contexto fornecido, o que representa um risco significativo em aplicações sensíveis.
+
+No contexto clínico, as alucinações representam um risco crítico de vida e de integridade dos dados. A inclusão de dados médicos fictícios — como a invenção de um sintoma não relatado, a prescrição incorreta de um fármaco ou um diagnóstico grave inferido equivocadamente — pode induzir o profissional a erros cruciais de continuidade de tratamento e comprometer o valor probatório e terapêutico do prontuário, causando incidentes de saúde e complicações legais severas.
+
+Para mitigar esses riscos na construção contínua de plataformas digitais, as equipes de engenharia adotam restrições rigorosas e estruturais. Destacam-se abordagens como o emprego de \textit{prompts de sistema delimitados} que orientam a inteligência artificial a extrair suas inferências exclusivamente do escopo exato de texto fornecido (diminuindo assim a dependência de um raciocínio especulativo dos pesos soltos do modelo). É ainda de caráter fundamental a imposição metodológica e sistemática de que as funcionalidades criadas são apenas \textit{ferramentas de apoio}: é \textbf{obrigatória a validação humana}. A Inteligência Artificial pode ser utilizada como ferramenta de apoio na elaboração de minutas e na sumarização de narrativas terapêuticas. No entanto, a validação por parte do profissional permanece indispensável. A leitura criteriosa, aliada à certificação formal pelo psicólogo responsável — por exemplo, por meio de assinatura digital — constitui não apenas uma recomendação, mas uma exigência legal inegociável. Nesse contexto, a responsabilidade final sobre o conteúdo produzido recai integralmente sobre o profissional, reforçando o papel da IA como instrumento auxiliar, e não substitutivo, na prática clínica. \cite{silva2023desafios}.
+
 \section{INTELIGÊNCIA ARTIFICIAL NA SAÚDE}
 
 A Inteligência Artificial (IA) tem sido amplamente aplicada no setor da saúde, oferecendo soluções que vão desde a análise preditiva até o suporte à tomada de decisões clínicas, passando pela automação de relatórios e extração de informações relevantes a partir de grandes volumes de dados clínicos. A capacidade da IA em lidar com dados não estruturados, como textos de prontuários, laudos médicos e anotações de sessões terapêuticas, possibilita uma transformação significativa na forma como os profissionais de saúde realizam seu trabalho \cite{brasil2022inteligencia}.
@@ -243,19 +206,21 @@ Outro campo de aplicação relevante é a extração de informações de documen
 
 Além disso, sistemas inteligentes também têm sido empregados como assistentes digitais para apoiar médicos, psicólogos e demais profissionais da saúde no processo de tomada de decisão clínica. Tais sistemas são capazes de sugerir tratamentos com base em diretrizes clínicas, histórico do paciente e dados extraídos automaticamente de registros anteriores, oferecendo suporte baseado em evidências científicas \cite{conass2020inteligencia}.
 
-\section{MODELO DE IA QUE SERÁ UTILIZADO}
+\section{MODELO DE IA UTILIZADO E JUSTIFICATIVA TÉCNICA}
 
- plataforma proposta neste trabalho utilizará um modelo de linguagem baseado em redes neurais do tipo transformer, voltado para aplicações de Processamento de Linguagem Natural (Natural Language Processing – NLP), com o objetivo de automatizar tarefas como a elaboração de relatórios terapêuticos, extração de informações de textos clínicos e assistência ao profissional da saúde mental. O modelo selecionado para essa finalidade é o LLaMA (Large Language Model Meta AI), desenvolvido pela Meta AI Research.
- 
-O LLaMA é uma família de modelos de linguagem autoregressivos que seguem a arquitetura transformer, proposta por Vaswani et al. (2017), e que se destaca por sua capacidade de capturar longos contextos e gerar texto de forma coerente e contextualizada. Os modelos LLaMA foram projetados com foco em eficiência, permitindo que pesquisadores e desenvolvedores utilizem modelos de linguagem de última geração sem depender exclusivamente de grandes infraestruturas computacionais ou serviços de nuvem \cite{touroude2023llama}.
+A plataforma proposta utiliza um modelo de linguagem autoregressivo fundamentado na arquitetura \textit{Transformer}, voltado a aplicações de Processamento de Linguagem Natural (NLP), com o objetivo de automatizar parcialmente a elaboração de relatórios terapêuticos e organizar o histórico clínico de pacientes. A abordagem adotada baseia-se em modelos de código aberto de alto desempenho, pertencentes à família LLaMA (Large Language Model Meta AI) \cite{touroude2023llama}.
 
-Para o presente trabalho, será utilizada a versão LLaMA 2, com enfoque no modelo Zephyr-7B-alpha, que conta com aproximadamente 7 bilhões de parâmetros e foi treinado com técnicas de instrução supervisionada (instruction tuning), o que o torna adequado para responder a perguntas, gerar textos formais e executar tarefas orientadas por comandos. Este modelo será empregado em versão quantizada (por exemplo, Q5\_K\_M), utilizando a biblioteca llama.cpp, que permite sua execução em dispositivos locais, mesmo com recursos computacionais limitados, como notebooks com menos de 16 GB de RAM.
+A escolha por um modelo de linguagem de grande escala (LLM) justifica-se por sua capacidade de modelar sequências textuais por meio da predição do próximo token (\textit{next token prediction}). Essa característica permite a geração de textos coerentes e contextualmente adequados, possibilitando a construção de rascunhos de laudos e a síntese de anotações clínicas em narrativas estruturadas, com elevado grau de coesão e fluidez.
 
-A quantização consiste em uma técnica de compressão do modelo que reduz o uso de memória e acelera a inferência, com perda mínima de precisão, sendo especialmente útil em ambientes edge computing ou quando se busca maior controle sobre os dados sensíveis, como ocorre no contexto clínico (DE VINCENTIS et al., 2023). A execução local do modelo quantizado viabiliza o cumprimento das exigências da Lei Geral de Proteção de Dados (LGPD), garantindo que nenhum dado clínico seja transmitido para servidores externos ou terceiros \cite{brasil2018lei}.
+Do ponto de vista arquitetural, o modelo opera sobre representações vetoriais das palavras, organizadas em matrizes, e utiliza mecanismos de \textit{self-attention} para identificar e ponderar trechos relevantes do contexto de entrada. Esse mecanismo possibilita que o modelo priorize informações críticas — como diagnósticos prévios, reações adversas a medicamentos e aspectos emocionais relevantes — contribuindo para a geração de respostas mais consistentes e alinhadas às instruções fornecidas.
 
-Além disso, o modelo será adaptado ao domínio da saúde mental por meio de um processo de prompt tuning com dados sintéticos representativos da prática clínica, incluindo exemplos de anotações de sessões, encaminhamentos e relatórios psicológicos. Isso permitirá ao modelo aprender padrões e estruturas linguísticas específicas da psicologia clínica, aumentando sua eficácia como ferramenta de apoio profissional.
+No contexto deste trabalho, optou-se pela utilização de modelos com aproximadamente 7 a 8 bilhões de parâmetros, previamente ajustados por meio de \textit{instruction tuning}, visando maior aderência a tarefas orientadas por comandos. A execução do modelo é realizada localmente por meio de implementações otimizadas em Python, como a biblioteca \texttt{llama-cpp-python}, permitindo que todo o processo de inferência ocorra no ambiente do servidor da aplicação.
 
-A escolha do LLaMA se justifica por sua robustez, facilidade de customização, compatibilidade com ambientes de alta confidencialidade e por ser de código aberto. Sua utilização permite a construção de uma solução de NLP eficaz, ética e segura, com potencial de auxiliar psicólogos e psiquiatras em tarefas cotidianas, otimizando tempo e padronizando a produção de documentos clínicos.
+A principal justificativa técnica para a não utilização de soluções baseadas em APIs externas — como serviços oferecidos por grandes provedores de tecnologia — está diretamente relacionada à privacidade dos dados clínicos. Informações provenientes de atendimentos psicoterapêuticos possuem natureza altamente sensível, exigindo rigorosos mecanismos de proteção. A execução local do modelo garante que os dados não sejam transmitidos a servidores externos, mitigando riscos de vazamento e assegurando maior controle sobre as informações processadas.
+
+Para viabilizar a execução eficiente dos modelos em ambiente local, emprega-se a técnica de quantização, que consiste na redução da precisão numérica dos parâmetros do modelo — tipicamente representados em ponto flutuante (16 ou 32 bits) — para formatos mais compactos (como 4 ou 5 bits). Essa estratégia reduz significativamente o consumo de memória e melhora o desempenho da inferência, mantendo níveis adequados de qualidade nas respostas geradas (DE VINCENTIS et al., 2023).
+
+Essa abordagem, baseada em execução local e modelos quantizados, está alinhada às diretrizes da Lei Geral de Proteção de Dados (LGPD) \cite{brasil2018lei}, ao garantir que dados sensíveis permaneçam restritos ao ambiente controlado da aplicação, evitando sua exposição em redes externas e assegurando maior conformidade com os requisitos legais e éticos da área da saúde.
 
 \section{NORMATIVAS E LEGISLAÇÃO SOBRE DADOS MÉDICOS}
 
