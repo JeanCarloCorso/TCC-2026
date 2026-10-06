@@ -6,7 +6,7 @@ O sistema desenvolvido, denominado \textbf{NaraPsi}, consiste em uma plataforma 
 
 Tradicionalmente, esses documentos são elaborados e armazenados utilizando ferramentas genéricas de edição de texto e serviços de armazenamento em nuvem, o que frequentemente resulta em fragmentação das informações, dificuldades de organização e riscos relacionados à segurança de dados sensíveis. Nesse contexto, o NaraPsi foi projetado para oferecer um ambiente digital especializado para o gerenciamento estruturado de informações clínicas.
 
-O sistema foi concebido considerando os princípios fundamentais de segurança da informação — confidencialidade, integridade e disponibilidade — além da conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018). Para isso, foram implementados mecanismos de autenticação segura, controle de acesso baseado em perfis, criptografia de dados sensíveis e registro auditável de operações realizadas na plataforma.
+O sistema foi concebido considerando os princípios de confidencialidade, integridade e disponibilidade e buscando alinhamento à Lei Geral de Proteção de Dados (Lei nº 13.709/2018). Foram implementados autenticação, controle de acesso baseado em perfis, criptografia de campos clínicos selecionados e auditoria de operações. Esses mecanismos contribuem para a proteção dos dados, mas não constituem, isoladamente, comprovação de conformidade integral com a LGPD.
 
 Um dos diferenciais da solução proposta é a integração de mecanismos de inteligência artificial aplicados ao Processamento de Linguagem Natural (PLN). Por meio da utilização de modelos de linguagem de grande escala (\textit{Large Language Models} -- LLMs), o sistema auxilia o profissional na geração de documentos clínicos e na consulta contextual de informações registradas ao longo do acompanhamento terapêutico.
 
@@ -161,7 +161,7 @@ Para o armazenamento de arquivos e documentos gerados pelo sistema foi utilizado
 
 A geração de documentos em formato PDF é realizada utilizando a biblioteca WeasyPrint, responsável por converter documentos HTML em arquivos PDF com alta fidelidade visual.
 
-O sistema também integra recursos de inteligência artificial por meio da biblioteca \textit{llama-cpp-python}, que permite a execução local de modelos de linguagem em formato GGUF. Na configuração avaliada, foi utilizado o modelo Qwen2.5-3B-Instruct quantizado. A implementação utiliza a classe \textit{Llama} para carregar o modelo em memória, permitindo o \textit{offloading} de camadas para a GPU, configurado pelo parâmetro \textit{n\_gpu\_layers}. Essa abordagem evita o envio do contexto clínico a serviços externos de inferência.
+O sistema integra recursos de inteligência artificial por meio da biblioteca \textit{llama-cpp-python}, que disponibiliza uma interface Python para o motor de inferência \textit{llama.cpp}. Nos testes apresentados, utilizou-se exclusivamente o Qwen2.5-3B-Instruct, no formato GGUF e com quantização \textit{Q4\_K\_M}. O Qwen2.5-3B-Instruct foi pré-treinado por terceiros e executado localmente, sem treinamento adicional ou ajuste fino com dados da NaraPsi. A inferência é realizada no servidor da aplicação, sem utilização de API externa de modelos de linguagem.
 
 Para garantir a segurança das credenciais de acesso e autenticação dos usuários, são utilizadas as bibliotecas python-jose, responsável pela geração e validação de tokens JWT, e Passlib, utilizada para aplicar algoritmos seguros de hashing de senhas.
 
@@ -171,7 +171,7 @@ Por fim, o sistema integra a API da plataforma Clicksign para a realização de 
 
 O sistema NaraPsi foi desenvolvido utilizando uma arquitetura em camadas, cujo objetivo é promover a separação de responsabilidades entre os diferentes componentes da aplicação. Essa abordagem facilita a manutenção do código, melhora a escalabilidade do sistema e contribui para a organização da lógica de negócio.
 
-A aplicação segue o modelo cliente-servidor, no qual a interface de usuário (frontend) se comunica com o backend por meio de requisições HTTP utilizando o padrão de APIs REST. Toda comunicação entre cliente e servidor é realizada por meio do protocolo seguro HTTPS.
+A aplicação segue o modelo cliente-servidor, no qual a interface de usuário (\textit{frontend}) se comunica com o \textit{backend} por meio de uma API REST. A configuração do protótipo admite endereços HTTP e não incorpora terminação TLS. Desse modo, a adoção de HTTPS constitui requisito da infraestrutura de implantação para o tratamento de dados reais.
 
 A arquitetura do backend é composta por quatro camadas principais:
 
@@ -218,13 +218,13 @@ Para a persistência de arquivos binários, como documentos em \textit{PDF} gera
 
 No contexto do sistema \textit{NaraPsi}, o \textit{MinIO} opera em um \textit{container Docker} dedicado, sendo acessado pelo \textit{backend} através da biblioteca \textit{boto3} (cliente \textit{SDK} para serviços compatíveis com \textit{S3}). A arquitetura de armazenamento foi organizada em \textit{buckets} distintos: um destinado aos documentos clínicos gerados (\textit{MINIO\_BUCKET\_NAME\_DOCS}) e outro para anexos diversos (\textit{MINIO\_BUCKET\_NAME\_ANEXOS}).
 
-Visando a segurança dos dados em repouso (\textit{Data-at-Rest}), o \textit{MinIO} foi configurado com suporte a \textit{SSE} (\textit{Server-Side Encryption}), garantindo que os objetos sejam criptografados automaticamente antes de serem escritos no disco físico. A integração na camada de serviço (\textit{app/services/minio.py}) abstrai as operações de \textit{upload}, \textit{download} e exclusão, vinculando o identificador do objeto (\textit{Key}) ao registro correspondente na base de dados relacional \textit{MySQL}.
+A implantação do MinIO utiliza a variável \texttt{MINIO\_SSE\_AUTO\_ENCRYPTION}, definida como \texttt{on} no ambiente empregado durante o desenvolvimento. A operação de \textit{upload} depende dessa configuração automática, pois não envia cabeçalho SSE específico. Consequentemente, a proteção dos objetos em repouso deve ser validada em cada ambiente de implantação. A camada \texttt{app/services/minio.py} implementa as operações de \textit{upload}, \textit{download} e exclusão, além de associar a chave do objeto ao registro correspondente no MySQL.
 
 \section{Modelagem do Banco de Dados}
 
 A modelagem do banco de dados foi elaborada com base nos requisitos funcionais, regras de negócio e fluxos de informação definidos nas etapas anteriores do projeto. O objetivo principal é garantir a integridade, a segurança e a rastreabilidade dos dados sensíveis relacionados aos pacientes e documentos terapêuticos. O modelo foi estruturado para suportar a associação entre psicólogos e seus respectivos pacientes, o controle de documentos em diferentes estados (em elaboração e finalizado), bem como o registro de assinaturas digitais obrigatórias.
 
-O sistema utiliza o banco de dados relacional MySQL, escolhido por sua robustez, ampla documentação, suporte à integridade referencial e compatibilidade com práticas modernas de desenvolvimento web. A modelagem contempla ainda aspectos de segurança como criptografia de dados sensíveis e registros de log para ações críticas, atendendo às exigências da Lei Geral de Proteção de Dados (LGPD). A seguir, apresenta-se o diagrama relacional que representa as principais entidades e seus relacionamentos.
+O sistema utiliza o banco de dados relacional MySQL, escolhido em razão de sua documentação e do suporte à integridade referencial. Os modelos de anamnese, sessão, documento e anotações do paciente aplicam criptografia Fernet aos campos clínicos definidos antes da persistência. Os demais campos permanecem sujeitos aos controles oferecidos pelo banco de dados e pela infraestrutura. A auditoria abrange as operações para as quais o registro foi explicitamente incorporado aos \textit{endpoints}, não correspondendo ao monitoramento automático de todas as consultas realizadas no banco. A seguir, apresenta-se o diagrama relacional.
 
 \subsection{Schema Principal}
 
@@ -241,9 +241,9 @@ O controle de acesso é gerenciado de forma granular por meio das tabelas de \te
 
 \subsection{Schema de Auditoria}
 
-O schema de auditoria foi desenhado como um banco de dados independente (\texttt{auditoria}) para atuar como uma camada de segurança paralela, garantindo o fiel cumprimento das normas de privacidade e da LGPD. Ele é composto fundamentalmente pela tabela \texttt{eventos\_auditoria}, que registra detalhadamente qualquer interação com o sistema.
+O schema de auditoria foi desenhado como um banco de dados separado (\texttt{auditoria}) para reduzir o acoplamento com os dados operacionais. Ele é composto principalmente pela tabela \texttt{eventos\_auditoria}, alimentada pelas operações explicitamente instrumentadas no \textit{backend}.
 
-Cada registro de log armazena metadados essenciais, como o \textit{timestamp} da ação, identificação do usuário, perfil de acesso, IP de origem e a ação específica realizada (\textit{CREATE, UPDATE, DELETE, VIEW}, entre outras). Para assegurar a rastreabilidade completa das modificações, o sistema salva os valores anteriores e os novos valores da entidade afetada. Visando garantir a imutabilidade e a proteção contra fraudes internas, a modelagem implementa uma cadeia de hashes criptográficos (\texttt{hash\_evento} e \texttt{hash\_anterior}). Além disso, foram criados \textit{Triggers} (Gatilhos) diretamente no nível do banco de dados que bloqueiam explicitamente qualquer tentativa de \texttt{UPDATE} ou \texttt{DELETE} na tabela de logs, tornando os registros permanentes e invioláveis.
+Cada registro pode armazenar \textit{timestamp}, usuário, perfil, IP, agente do navegador, ação, entidade e valores anterior e novo. A cadeia de hashes (\texttt{hash\_evento} e \texttt{hash\_anterior}) permite detectar alterações posteriores. \textit{Triggers} no banco rejeitam \texttt{UPDATE} e \texttt{DELETE} pela via convencional, sem eliminar riscos associados a privilégios administrativos, perda do banco ou comprometimento das chaves.
 
 \begin{figure}[H]
     \centering
@@ -256,18 +256,30 @@ Cada registro de log armazena metadados essenciais, como o \textit{timestamp} da
 
 A integração de inteligência artificial no sistema NaraPsi visa auxiliar o profissional na elaboração de documentos e na extração de informações de prontuários.
 
-\subsection{Fluxo de Geração Automatizada}
+\subsection{Fluxo do contexto clínico até o prompt}
 
-A utilização da IA na plataforma atua de forma transparente como um assistente invisível ao psicólogo, seguindo o fluxo de integração do \textit{backend}:
+A integração implementada segue o seguinte fluxo:
 
 \begin{enumerate}
-    \item \textbf{Usuário / Frontend:} O psicólogo solicita a elaboração de um documento dentro do prontuário. Ele insere algumas palavras-chave no formulário principal se necessário.
-    \item \textbf{Entrada e Montagem do Contexto (Backend):} O \textit{backend} (via microsserviços em FastAPI), constrói um \textit{prompt} concatenando uma "Instrução de Sistema" (\textit{system prompt} oculto), que delimita o tom técnico-clínico esperado, acrescido dos dados textuais em crú recuperados a partir da anamnese e do histórico consolidado das sessões.
-    \item \textbf{Integração com o LLM (AgenteIA):} A classe interna \texttt{agenteIA} interage diretamente com o modelo carregado em memória por meio da biblioteca \textit{llama.cpp} para Python. Essa consulta passa pela contagem prévia de \textit{tokens} por meio da função de vetorização (\texttt{tokenize()}) — de modo a prevenir o estouro da capacidade de \textit{input} (\textit{context window} delimitada por \textit{n\_ctx}) e processada pelo parâmetro \textit{n\_threads}.
-    \item \textbf{Saída de Dados e Exibição:} O LLM formula, baseado em previsão de métricas probabilísticas, um rascunho gramaticalmente coeso e técnico, organizando aquele montante de dados pregressos em formato profissional. O resultado é devolvido ao canal HTTP e preenche de imediato o editor de texto do psicólogo na tela de interface de usuário.
+    \item \textbf{Solicitação:} o psicólogo aciona a geração de documento ou envia uma pergunta no assistente vinculada a um paciente.
+    \item \textbf{Consulta da anamnese:} o \textit{backend} recupera treze campos da anamnese, incluindo estrutura familiar, medicamentos, queixa principal e história pregressa. Campos ausentes recebem o marcador ``Não informado''.
+    \item \textbf{Consulta das sessões:} são selecionadas somente sessões com situação concluída, ordenadas da mais recente para a mais antiga. Marcações HTML são removidas e cada registro recebe data e identificação ordinal.
+    \item \textbf{Controle da janela}: o texto é tokenizado pelo mesmo modelo utilizado na inferência. Na configuração adotada para os testes, a janela corresponde a 10.240 \textit{tokens}, dos quais 1.024 são reservados à resposta. A anamnese recebe prioridade, e os relatos de sessão são acrescentados até o limite disponível; os registros excedentes são omitidos.
+    \item \textbf{Montagem do prompt}: a mensagem de sistema determina português do Brasil, linguagem formal, resposta baseada somente no contexto e a frase ``Sem dados suficientes para gerar uma resposta'' quando necessário. Em seguida, são inseridos os blocos \texttt{ANAMNESE DO PACIENTE} e \texttt{RELATOS DE SESSÃO}. Para o \textit{chat}, a pergunta do profissional é adicionada como mensagem de usuário.
+    \item \textbf{Inferência e retorno}: o contexto no formato ChatML é enviado ao Qwen2.5-3B-Instruct por \texttt{create\_chat\_completion}. O texto resultante retorna ao \textit{endpoint} e é apresentado ao profissional para revisão.
 \end{enumerate}
 
-Esta funcionalidade garante que minutas textuais complexas, como sínteses de evolução mental ou indicações multiprofissionais, surjam pré-redigidas para o psicólogo. A sua atribuição posterior converte-se em lapidar detalhes sutis — salvaguardando rigorosamente recursos críticos em tempo clínico sem abrir mão dos padrões éticos instituídos.
+O contexto encaminhado ao modelo contém os dados clínicos associados ao paciente selecionado. A implementação não realiza anonimização ou pseudonimização antes da inferência. Embora a execução local reduza a exposição das informações a provedores externos, o processo de inferência e a memória do servidor permanecem integrantes da superfície de risco da aplicação.
+
+\subsection{Parâmetros de inferência e ambiente}
+
+Na ausência de variáveis de ambiente, a implementação define \texttt{n\_ctx=4096}, \texttt{n\_batch=512}, limite de 512 \textit{tokens} para a saída, \texttt{mmap} habilitado e \texttt{mlock} desabilitado. Na configuração empregada nos testes, esses valores foram definidos como: janela de 10.240 \textit{tokens}, limite de 1.024 \textit{tokens} para a resposta, 6 \textit{threads}, lote de 512 e \texttt{mmap} e \texttt{mlock} habilitados. A geração foi configurada com temperatura de 0,7, \textit{top-p} de 0,95 e penalidade de repetição de 1,1. O carregamento do modelo destinou 25 camadas ao processamento pela GPU. Nessas condições, 9.216 \textit{tokens} permaneceram disponíveis para a anamnese e os relatos de sessão.
+
+Os testes foram executados em um computador com processador AMD Ryzen 7 3700U, 13 GiB de memória RAM e recursos gráficos AMD Radeon Vega e Radeon 540X, utilizando sistema operacional Linux. Essa configuração deve ser considerada na interpretação do tempo de resposta observado, pois o desempenho da inferência local depende do processador, da memória disponível, do suporte gráfico e dos parâmetros de execução.
+
+\subsection{Controles contra alucinação}
+
+Os controles implementados compreendem a instrução para utilização exclusiva dos registros fornecidos, a resposta padronizada para insuficiência de dados, a separação da anamnese e dos relatos de sessão por rótulos, a limitação do tamanho da saída e a revisão do conteúdo pelo psicólogo. Tais medidas reduzem a probabilidade e o impacto de gerações sem respaldo, mas não realizam a verificação automática de cada afirmação produzida. A implementação também não dispõe de associação entre a resposta e seus trechos de origem, validação factual automatizada, alerta de truncamento do contexto ou bloqueio da assinatura condicionado à confirmação da revisão. Adicionalmente, a temperatura de 0,7 preserva variabilidade na geração, aspecto que requer consideração em documentos de natureza clínica.
 
 \section{Funcionamento das Principais Funcionalidades}
 
@@ -305,11 +317,11 @@ A Figura~\ref{fig:fluxo-auditoria} apresenta o fluxo de registro e processamento
 
 Nesse fluxo, qualquer ação relevante realizada na aplicação — como autenticação, criação, atualização ou exclusão de registros — é interceptada pelo serviço de auditoria do backend. Os metadados do evento são enviados para uma fila Redis, onde ficam temporariamente armazenados até serem processados por um \textit{worker} em segundo plano. O processo de processamento do log inclui a recuperação do último hash registrado, a criptografia de campos sensíveis quando necessário e a geração de um novo hash criptográfico utilizando o algoritmo SHA-256. Por fim, o registro é persistido no banco de dados de auditoria, garantindo a rastreabilidade e a integridade das operações realizadas no sistema.
 
-Os registros de auditoria são criptografados e encadeados utilizando algoritmos de hash SHA-256. Esse mecanismo garante a integridade dos logs, impedindo alterações não autorizadas e permitindo a verificação posterior da autenticidade das informações. Esta abordagem garante maior transparência e segurança no tratamento de dados pessoais sensíveis, estando em conformidade com os princípios estabelecidos pela Lei Geral de Proteção de Dados (LGPD).
+Nos eventos classificados como sensíveis, os valores anterior e novo são criptografados com Fernet. Posteriormente, cada evento recebe um hash SHA-256 calculado com a inclusão do hash do registro precedente. A integridade da cadeia pode ser examinada pelo verificador implementado no sistema. Esse mecanismo favorece a rastreabilidade e a detecção de adulterações, mas não elimina riscos de indisponibilidade, perda de eventos na fila ou exclusão do banco por credenciais administrativas. Por essa razão, a auditoria constitui uma medida técnica de proteção, e não uma comprovação isolada de conformidade integral com a LGPD.
 
 \section{Segurança da Informação e LGPD}
 
-Considerando a natureza sensível das informações manipuladas pelo sistema, foram implementados diversos mecanismos de segurança voltados para a proteção dos dados e conformidade com a Lei Geral de Proteção de Dados (LGPD).
+Considerando a natureza sensível das informações manipuladas pelo sistema, foram implementados mecanismos de segurança destinados à proteção dos dados. A análise desenvolvida neste trabalho restringe-se aos controles técnicos presentes no protótipo. Não integram o escopo da avaliação a definição da base legal aplicável a cada operação de tratamento, a gestão de consentimento, os procedimentos para atendimento aos direitos dos titulares, os prazos de retenção, o relatório de impacto à proteção de dados e o processo organizacional de resposta a incidentes.
 
 Para melhor compreensão do processo de autenticação implementado na plataforma, a Figura~\ref{fig:fluxo-autenticacao} apresenta o diagrama de sequência que descreve o fluxo completo de validação das credenciais, geração do token de acesso e registro do evento de autenticação no sistema.
 
@@ -334,7 +346,7 @@ As senhas dos usuários não são armazenadas em formato de texto plano. O siste
 
 \subsection{Integridade e Imutabilidade de Logs} 
 
-Para garantir a integridade dos registros de auditoria, foi implementado um mecanismo de encadeamento criptográfico (\textit{hash chaining}) processado de forma assíncrona por um \textit{worker} especializado em segundo plano. Essa técnica, inspirada em princípios de estruturas de dados de \textit{blockchain}, garante que cada registro esteja matematicamente vinculado ao seu predecessor, tornando qualquer tentativa de retroalteração detectável.
+Para promover a integridade verificável dos registros de auditoria, foi implementado um mecanismo de encadeamento criptográfico (\textit{hash chaining}), processado de forma assíncrona por um \textit{worker} em segundo plano. A técnica, baseada em princípios empregados em estruturas de dados de \textit{blockchain}, vincula matematicamente cada registro ao seu predecessor, permitindo a detecção de alterações retroativas durante a verificação da cadeia.
 
 Cada registro de auditoria possui um \textit{hash} SHA-256 calculado a partir de uma semente $S_n$ que contém os metadados do evento (ID do usuário, ação realizada, entidade afetada e \textit{timestamp}) e o \textit{hash} do registro imediatamente anterior ($H_{n-1}$). A fim de garantir o determinismo do \textit{hash} --- assegurando que o mesmo conjunto de dados resulte invariavelmente no mesmo valor binário --- a semente $S_n$ é serializada em formato JSON com chaves ordenadas (\textit{sort\_keys=True}) antes do processo de \textit{hashing}.
 
@@ -353,7 +365,7 @@ Onde:
 
 \textbf{Tratamento do Bloco Gênese:} Para o registro inicial do sistema ($n=0$), onde não há um predecessor, o valor de $H_{-1}$ é definido como uma constante fixa de 64 caracteres hexadecimais (zeros), servindo como a âncora de confiança da cadeia de custódia.
 
-\textbf{Segurança em Nível de Persistência:} Para reforçar a imutabilidade além da lógica de aplicação, foram implementados \textit{Triggers} (Gatilhos) diretamente no SGDB MySQL. Estes gatilhos bloqueiam explicitamente qualquer operação de \textit{UPDATE} ou \textit{DELETE} na tabela de auditoria, disparando um sinal de erro (\textit{SQLSTATE '45000'}) caso haja uma tentativa de violação. Dessa forma, os logs tornam-se registros permanentes e invioláveis, em plena conformidade com os requisitos de rastreabilidade e transparência estabelecidos pela Lei Geral de Proteção de Dados (LGPD).
+\textbf{Segurança em Nível de Persistência:} Foram implementados \textit{triggers} no MySQL que rejeitam operações de \textit{UPDATE} e \textit{DELETE} na tabela de auditoria mediante o retorno do código \textit{SQLSTATE '45000'}. A medida restringe alterações realizadas pelas operações convencionais do banco, mas não confere inviolabilidade absoluta aos registros. Permanecem relevantes os riscos associados a privilégios administrativos no SGBD, modificações do esquema, restaurações de \textit{backup} e comprometimento das chaves criptográficas.
 
 \section{Interfaces do Sistema}
 
@@ -491,7 +503,7 @@ Os diagramas produzidos nesta seção visam ilustrar a arquitetura, o comportame
 
 \subsection{Arquitetura}
 
-A aplicação é estruturada em três camadas principais: \textit{frontend}, \textit{backend} e serviços externos. A comunicação entre o cliente React e o servidor FastAPI ocorre por meio de HTTPS/TLS. Os dados sensíveis dos pacientes são persistidos no banco MySQL com criptografia simétrica em nível de aplicação. Os arquivos anexados e os documentos são protegidos e armazenados no MinIO. O \textit{backend} integra-se à API de assinatura eletrônica da Clicksign e executa localmente o modelo Qwen2.5-3B-Instruct para auxiliar na geração de conteúdos clínicos. Os mecanismos implementados buscam atender aos princípios de segurança e proteção de dados aplicáveis ao sistema.
+A aplicação é estruturada em \textit{frontend}, \textit{backend}, bancos e serviços auxiliares. O React consome a API FastAPI; a proteção por HTTPS/TLS é uma responsabilidade da infraestrutura de implantação. Campos clínicos selecionados são criptografados com Fernet antes da persistência no MySQL. Os arquivos são armazenados no MinIO, cuja criptografia em repouso depende da configuração do ambiente. O \textit{backend} integra-se à API de assinatura eletrônica da Clicksign e executa localmente o modelo Qwen2.5-3B-Instruct para auxiliar na geração de conteúdos clínicos. Os mecanismos implementados buscam atender aos princípios de segurança e proteção de dados aplicáveis ao sistema.
 
 \begin{figure}[H]
     \centering
@@ -589,7 +601,7 @@ Também foram realizados testes utilizando o assistente conversacional integrado
 
 Os resultados gerados foram avaliados manualmente, apresentando coerência textual e aderência adequada ao contexto clínico fornecido.
 
-Durante os testes realizados, não foram observados casos significativos de alucinação do modelo, embora a validação humana continue sendo indispensável devido à natureza crítica das informações médicas e psicológicas.
+Na avaliação manual das respostas, não foram observadas ocorrências consideradas significativas de geração sem respaldo no contexto fornecido. Todavia, o procedimento não empregou métrica quantitativa de fidelidade, conjunto sistemático de casos adversariais ou avaliadores independentes. Consequentemente, os resultados não permitem estimar a taxa de alucinação do modelo nem demonstrar sua segurança para uso clínico autônomo. A revisão por profissional habilitado permanece, portanto, indispensável.
 
 \subsection{Limitações Observadas}
 
