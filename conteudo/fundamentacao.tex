@@ -110,6 +110,54 @@ Estudos comparativos demonstram que, frente a soluções tradicionais como o HDF
 Portanto, a adoção do MinIO como \textit{backend} de armazenamento em plataformas de dados clínicos, como a proposta neste trabalho, é justificada não apenas por sua capacidade técnica, mas também por sua flexibilidade, segurança e aderência a padrões consolidados da indústria.
 
 
+\section{INTELIGÊNCIA ARTIFICIAL E PROCESSAMENTO DE LINGUAGEM NATURAL}
+
+A IA reúne métodos computacionais para tarefas associadas à percepção, ao raciocínio e à produção de respostas. Dentro desse campo, o aprendizado de máquina permite identificar regularidades em dados e ajustar modelos a partir de exemplos \cite{russell2013inteligencia,ludermir2021inteligencia}. Para este trabalho, contudo, interessa especificamente o Processamento de Linguagem Natural (PLN), e não a classificação geral dos tipos de aprendizado.
+
+O PLN estuda técnicas e métodos para representar, compreender, interpretar e gerar a linguagem humana de forma automatizada. Em registros clínicos, pode apoiar a organização de narrativas, a sumarização de atendimentos e a elaboração de minutas, desde que o resultado permaneça submetido à revisão profissional \cite{stryker2024o}. A NaraPsi situa-se nesse recorte: emprega um modelo generativo para transformar anamnese e relatos de sessões em texto de apoio, sem atribuir ao sistema autonomia diagnóstica ou terapêutica.
+
+\section{TRANSFORMERS E MODELOS DE LINGUAGEM}
+
+A arquitetura \textit{Transformer}, proposta por \citeonline{vaswani2017attention}, substituiu o processamento estritamente recorrente por mecanismos de atenção capazes de relacionar diferentes posições de uma sequência. Essa mudança favoreceu o desenvolvimento dos grandes modelos de linguagem (LLMs, do inglês \textit{Large Language Models}).
+
+\subsection{Tokens, representações e atenção}
+
+Antes do processamento, o texto é segmentado em \textit{tokens}, unidades que podem corresponder a palavras, partes de palavras, sinais ou caracteres. Cada unidade é convertida em uma representação vetorial e combinada com informação de posição. O modelo opera, portanto, sobre sequências numéricas limitadas por uma janela de contexto.
+
+A autoatenção calcula, para cada posição, a relevância das demais por meio das projeções consulta, chave e valor (\textit{query}, \textit{key} e \textit{value}). Em uma narrativa clínica, isso permite relacionar uma queixa atual a informações registradas anteriormente. A atenção melhora a representação contextual, mas não verifica fatos nem garante fidelidade ao prontuário.
+
+\subsection{Treinamento e inferência}
+
+No treinamento, os parâmetros são ajustados a partir de grandes conjuntos textuais. Modelos autorregressivos estimam a probabilidade do próximo \textit{token}; modelos do tipo \textit{Instruct} passam ainda por alinhamento para responder a instruções. Na inferência, etapa utilizada pela NaraPsi, os pesos permanecem fixos: o sistema fornece um \textit{prompt}, e o modelo seleciona sucessivamente novos \textit{tokens} até concluir a resposta ou atingir o limite configurado.
+
+A temperatura controla a dispersão das probabilidades; o \textit{top-p} restringe a seleção ao menor conjunto de candidatos cuja probabilidade acumulada atinge um limiar; e a penalidade de repetição reduz ciclos textuais. Valores conservadores podem tornar a saída mais previsível, mas nenhum ajuste elimina, isoladamente, respostas incorretas.
+
+\subsection{Quantização e execução local}
+
+A quantização reduz a precisão numérica dos pesos. Representações compactas, como as de 4 bits, diminuem o consumo de memória e tornam a inferência local viável em equipamentos mais modestos, com uma troca entre tamanho, velocidade e fidelidade numérica \cite{vincentis2023efficient}. O formato GGUF organiza pesos quantizados e metadados. A biblioteca \texttt{llama.cpp} executa a inferência em CPU e GPU, enquanto \texttt{llama-cpp-python} a integra ao \textit{backend} Python. Na NaraPsi, essa arquitetura evita o envio do texto clínico a uma API externa.
+
+\subsection{Prompting e contextualização}
+
+Um \textit{prompt} combina instruções, dados de contexto e a solicitação do usuário. Na NaraPsi, a mensagem de sistema define idioma, estilo formal, uso exclusivo da anamnese e dos relatos e uma resposta padrão quando faltam informações. Trata-se de geração condicionada ao contexto, e não de treinamento ou ajuste fino com prontuários dos pacientes.
+
+\subsection{Alucinações e estratégias de mitigação}
+
+Alucinação é a geração de conteúdo plausível, mas sem apoio nos dados fornecidos, contraditório ao contexto ou factualmente incorreto \cite{ji2023survey}. Ela decorre, em parte, do objetivo probabilístico do modelo, que favorece sequências linguísticas prováveis, e não a comprovação da veracidade. Contexto incompleto, instruções ambíguas, truncamento e amostragem muito diversa ampliam o risco.
+
+Em saúde mental, uma saída pode inventar sintomas, confundir datas ou apresentar inferências como fatos. Mitigar não significa eliminar o problema. As salvaguardas devem combinar:
+
+\begin{itemize}
+    \item \textbf{fundamentação no contexto}: limitar a resposta aos registros recuperados e declarar insuficiência de dados;
+    \item \textbf{controle da entrada}: estruturar anamnese e sessões, controlar a janela de contexto e informar eventual truncamento;
+    \item \textbf{controle da geração}: usar parâmetros mais determinísticos em documentos, limitar a resposta e evitar solicitações diagnósticas abertas;
+    \item \textbf{verificação}: exigir revisão humana antes de salvar, exportar ou assinar e, futuramente, vincular afirmações aos trechos de origem;
+    \item \textbf{avaliação contínua}: testar casos representativos e medir omissões, contradições e informações sem evidência.
+\end{itemize}
+
+A NaraPsi já adota execução local, \textit{prompt} restritivo, resposta para dados insuficientes, limite de saída e revisão profissional. Como melhorias, recomenda-se reduzir a temperatura nas rotinas documentais, sinalizar registros omitidos pelo limite de contexto, impedir assinatura sem confirmação da revisão e implementar testes sistemáticos de fidelidade. Essas medidas reduzem probabilidade e impacto, mas não autorizam uso autônomo da IA.
+
+\iffalse
+
 \section{INTELIGÊNCIA ARTIFICIAL}
 
 Desde os primórdios da humanidade tentamos compreender o que é a inteligência humana, como que um mero humano, que nada mais é que um simples pedaço de matéria, consegue compreender e modificar um universo muito maior. O campo da inteligência artificial (IA), tenta compreender e reproduzir a inteligência humana em máquinas. A IA é um campo relativamente novo, os trabalhos relacionados ao desenvolvimento desta ciência começaram logo após a segunda guerra mundial e o nome desta nova subárea da ciência foi criado em meados de 1956. \cite{russell2013inteligencia}. 
@@ -196,6 +244,8 @@ No contexto clínico, as alucinações representam um risco crítico de vida e d
 
 Para mitigar esses riscos na construção contínua de plataformas digitais, as equipes de engenharia adotam restrições rigorosas e estruturais. Destacam-se abordagens como o emprego de \textit{prompts de sistema delimitados} que orientam a inteligência artificial a extrair suas inferências exclusivamente do escopo exato de texto fornecido (diminuindo assim a dependência de um raciocínio especulativo dos pesos soltos do modelo). É ainda de caráter fundamental a imposição metodológica e sistemática de que as funcionalidades criadas são apenas \textit{ferramentas de apoio}: é \textbf{obrigatória a validação humana}. A Inteligência Artificial pode ser utilizada como ferramenta de apoio na elaboração de minutas e na sumarização de narrativas terapêuticas. No entanto, a validação por parte do profissional permanece indispensável. A leitura criteriosa, aliada à certificação formal pelo psicólogo responsável — por exemplo, por meio de assinatura digital — constitui não apenas uma recomendação, mas uma exigência legal inegociável. Nesse contexto, a responsabilidade final sobre o conteúdo produzido recai integralmente sobre o profissional, reforçando o papel da IA como instrumento auxiliar, e não substitutivo, na prática clínica. \cite{silva2023desafios}.
 
+\fi
+
 \section{INTELIGÊNCIA ARTIFICIAL NA SAÚDE}
 
 A Inteligência Artificial (IA) tem sido amplamente aplicada no setor da saúde, oferecendo soluções que vão desde a análise preditiva até o suporte à tomada de decisões clínicas, passando pela automação de relatórios e extração de informações relevantes a partir de grandes volumes de dados clínicos. A capacidade da IA em lidar com dados não estruturados, como textos de prontuários, laudos médicos e anotações de sessões terapêuticas, possibilita uma transformação significativa na forma como os profissionais de saúde realizam seu trabalho \cite{brasil2022inteligencia}.
@@ -208,6 +258,7 @@ Além disso, sistemas inteligentes também têm sido empregados como assistentes
 
 \section{MODELO DE IA UTILIZADO E JUSTIFICATIVA TÉCNICA}
 
+\iffalse
 A plataforma proposta utiliza um modelo de linguagem autorregressivo fundamentado na arquitetura \textit{Transformer}, voltado a aplicações de PLN, com o objetivo de auxiliar a elaboração de documentos terapêuticos e a consulta ao histórico clínico dos pacientes. Na configuração avaliada neste trabalho, foi utilizado o Qwen2.5-3B-Instruct, um modelo previamente treinado e ajustado para seguir instruções.
 
 A escolha por um modelo de linguagem de grande escala (LLM) justifica-se por sua capacidade de modelar sequências textuais por meio da predição do próximo token (\textit{next token prediction}). Essa característica permite a geração de textos coerentes e contextualmente adequados, possibilitando a construção de rascunhos de laudos e a síntese de anotações clínicas em narrativas estruturadas, com elevado grau de coesão e fluidez.
@@ -221,6 +272,15 @@ A principal justificativa técnica para a não utilização de soluções basead
 Para viabilizar a execução eficiente dos modelos em ambiente local, emprega-se a técnica de quantização, que consiste na redução da precisão numérica dos parâmetros do modelo — tipicamente representados em ponto flutuante (16 ou 32 bits) — para formatos mais compactos (como 4 ou 5 bits). Essa estratégia reduz significativamente o consumo de memória e melhora o desempenho da inferência, mantendo níveis adequados de qualidade nas respostas geradas (DE VINCENTIS et al., 2023).
 
 Essa abordagem, baseada em execução local e modelos quantizados, está alinhada às diretrizes da Lei Geral de Proteção de Dados (LGPD) \cite{brasil2018lei}, ao garantir que dados sensíveis permaneçam restritos ao ambiente controlado da aplicação, evitando sua exposição em redes externas e assegurando maior conformidade com os requisitos legais e éticos da área da saúde.
+\fi
+
+A configuração adotada utiliza o Qwen2.5-3B-Instruct, modelo autorregressivo da família Qwen com aproximadamente 3 bilhões de parâmetros e ajustado para seguir instruções. O porte foi escolhido como compromisso entre capacidade de geração, memória disponível e tempo de resposta no ambiente local. A variante usada é distribuída em GGUF com quantização \textit{Q4\_K\_M}, o que reduz a memória exigida, embora possa introduzir perda numérica em relação a pesos de maior precisão.
+
+O carregamento é realizado pela classe \texttt{Llama}, da biblioteca \texttt{llama-cpp-python}, que expõe os recursos do \texttt{llama.cpp} ao \textit{backend}. A implementação aceita configurações de número de \textit{threads}, tamanho de lote, mapeamento em memória e processamento parcial de camadas pela GPU. O formato de conversa configurado é ChatML, compatível com a separação entre mensagens de sistema e de usuário.
+
+Na configuração padrão, a janela de contexto é de 4.096 \textit{tokens}, dos quais 512 são reservados à resposta. A anamnese é inserida primeiro e as sessões concluídas são acrescentadas até o limite disponível. A geração utiliza temperatura de 0,7, \textit{top-p} de 0,95 e penalidade de repetição de 1,1. Esses valores são parâmetros do protótipo e devem ser avaliados nos testes de fidelidade; para documentos clínicos, uma configuração menos aleatória pode ser mais adequada.
+
+A inferência local reduz a exposição decorrente do envio de dados a provedores externos, mas não garante, por si só, conformidade com a LGPD. A proteção depende também de controle de acesso, criptografia, registros de operação, retenção adequada e revisão humana. Dessa forma, a escolha do Qwen2.5-3B-Instruct e do \texttt{llama.cpp} atende à restrição de privacidade e aos recursos computacionais do projeto, mantendo a IA como componente auxiliar da plataforma \cite{brasil2018lei}.
 
 \section{NORMATIVAS E LEGISLAÇÃO SOBRE DADOS MÉDICOS}
 
@@ -249,6 +309,31 @@ Diversos estudos brasileiros têm se dedicado ao desenvolvimento e aprimoramento
 No entanto, ambos os estudos têm como foco principal a aplicação de PLN em domínios específicos da saúde (ginecologia e neonatologia) e em contextos hospitalares mais amplos, sem considerar o armazenamento seguro e individualizado de documentos terapêuticos voltados à saúde mental, especialmente em psicologia clínica.
 
 No que se refere à segurança da informação, \citeonline{magnagnagno2020seguranca} analisaram práticas adotadas em ambientes hospitalares brasileiros, observando a utilização de criptografia em comunicações e o uso de certificados digitais da ICP-Brasil para assinatura de prontuários eletrônicos. \citeonline{tertulino2024privacidade} também destacaram a importância da autenticação forte, da rastreabilidade dos acessos e da conformidade com a LGPD como aspectos essenciais na construção de sistemas seguros. No entanto, tais trabalhos se concentram em sistemas hospitalares amplos, sem considerar soluções mais enxutas e especializadas que atendam diretamente profissionais autônomos ou clínicas de psicologia.
+
+O Quadro \ref{qua:comparacao-trabalhos} sintetiza o recorte de cada estudo e explicita a lacuna abordada pela NaraPsi.
+
+\begin{quadro}[H]
+\centering
+\caption{Comparação entre os trabalhos relacionados e a NaraPsi}
+\label{qua:comparacao-trabalhos}
+\footnotesize
+\renewcommand{\arraystretch}{1.18}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{2.3cm}|>{\raggedright\arraybackslash}p{2.7cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}p{3.25cm}|}
+\hline
+\textbf{Trabalho} & \textbf{Contexto} & \textbf{Contribuição principal} & \textbf{Diferença para a NaraPsi} \\ \hline
+\citeonline{souza2024recuperacao} & Prontuários ginecológicos & Recuperação de termos clínicos por PLN. & Não contempla documentos de saúde mental nem geração local. \\ \hline
+\citeonline{santos2024classificacao} & Internações neonatais & Classificação automática de códigos CID com BERT. & Classifica diagnósticos; a NaraPsi gera minutas baseadas no histórico. \\ \hline
+\citeonline{magnagnagno2020seguranca} & Ambientes hospitalares & Análise de criptografia, certificados digitais e segurança. & Não apresenta plataforma para psicologia com LLM local. \\ \hline
+\citeonline{tertulino2024privacidade} & Prontuário eletrônico & Requisitos de privacidade, autenticação, rastreabilidade e LGPD. & Analisa requisitos; a NaraPsi os integra a documentos e IA. \\ \hline
+\textbf{NaraPsi} & Psicologia clínica & Gestão de dados e documentos, assinatura digital e LLM local. & Integra privacidade, documentos e assistência generativa. \\ \hline
+\end{tabularx}
+\par\vspace{0.6em}
+\begin{flushleft}
+\footnotesize Fonte: Elaborado pelo autor (2026).
+\end{flushleft}
+\end{quadro}
+
+A comparação não indica superioridade geral, pois os estudos possuem objetivos distintos. O diferencial investigado é a integração, em uma plataforma voltada à psicologia clínica, de armazenamento protegido, fluxo documental e inferência local condicionada aos registros do paciente.
 
 
 
