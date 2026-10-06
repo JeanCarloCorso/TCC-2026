@@ -1,32 +1,55 @@
 \chapter{INTRODUÇÃO}
 
-A digitalização da saúde tornou-se essencial para a otimização do processo, melhoria da segurança da informação e facilitação do acesso a dados médicos. O armazenamento e gerenciamento de documentos médicos são um desafio para clínicas e hospitais, que devem garantir a confidencialidade, integridade e disponibilidade dos dados de seus pacientes. Dado esse cenário, este trabalho propõe o desenvolvimento de uma plataforma de armazenamento de documentos médicos, integrando tecnologias de criptografia, inteligência artificial e assinatura digital para garantir a segurança e a eficiência no gerenciamento dessas informações.
+\section{Contexto e Problema de Pesquisa}
 
-A plataforma permitirá o cadastro de pacientes, a vinculação com os profissionais responsáveis e a organização de seus prontuários. Um modelo de inteligência artificial executado localmente auxiliará na elaboração de documentos e em consultas baseadas nos dados registrados. Além disso, a plataforma contará com integração à API da Clicksign para assinatura eletrônica e com mecanismos criptográficos destinados à proteção dos documentos. A solução busca oferecer a profissionais da psicologia um ambiente especializado para acesso e gerenciamento de informações clínicas.
+A digitalização dos serviços de saúde ampliou a produção e o uso de documentos eletrônicos em atividades de atendimento, acompanhamento e gestão. Na psicologia clínica, prontuários, registros de sessões, anamneses, laudos, pareceres, encaminhamentos e outros documentos reúnem informações pessoais e relatos sobre a saúde mental dos pacientes. Por essa razão, sua gestão deve considerar confidencialidade, integridade, disponibilidade, controle de acesso e rastreabilidade das operações realizadas.
 
-Neste sentido, a proposta deste trabalho difere dos anteriores por apresentar uma plataforma direcionada ao armazenamento seguro de documentos psicoterapêuticos, com ênfase em saúde mental. A solução integra proteção dos dados em trânsito e em repouso, mecanismos de assinatura eletrônica e um modelo de IA pré-treinado cuja inferência é executada localmente. Essa abordagem busca combinar privacidade, automação e apoio à produção documental de forma especializada para a prática psicológica.
+A Lei Geral de Proteção de Dados Pessoais classifica os dados referentes à saúde como dados pessoais sensíveis, submetendo seu tratamento a requisitos específicos de proteção \cite{brasil2018lei}. No contexto psicoterapêutico, a necessidade de proteção é acentuada pelo caráter íntimo dos relatos registrados durante o acompanhamento do paciente \cite{salles2023privacidade}. O uso de arquivos físicos, editores de texto genéricos e serviços de armazenamento dispersos pode dificultar a organização, a recuperação e o controle de acesso a essas informações.
 
+Paralelamente, modelos de linguagem de grande escala permitem resumir textos, extrair informações e produzir rascunhos a partir de instruções em linguagem natural. Essas capacidades podem apoiar a organização de registros e a elaboração de documentos clínicos. Entretanto, o uso de modelos hospedados por terceiros pode exigir o envio de informações a serviços externos, enquanto a geração textual pode apresentar informações incorretas ou não sustentadas pelo contexto fornecido, fenômeno conhecido como alucinação \cite{ji2023survey}. Assim, a incorporação dessa tecnologia deve preservar a privacidade dos dados e manter a validação do conteúdo sob responsabilidade do profissional.
+
+Diante desse cenário, o problema central deste trabalho consiste em conciliar a gestão segura de documentos psicoterapêuticos com recursos de automação baseados em modelos de linguagem. A pesquisa é orientada pela seguinte questão: \textit{como desenvolver uma plataforma web que centralize e proteja documentos psicoterapêuticos e, ao mesmo tempo, utilize um modelo de linguagem executado localmente para auxiliar a consulta de registros e a elaboração de documentos, sem substituir a validação do psicólogo?}
+
+Como resposta a esse problema, foi desenvolvida a NaraPsi, uma plataforma web que organiza pacientes, prontuários, registros de sessões, anexos e documentos terapêuticos. A solução incorpora autenticação, controle de acesso baseado em papéis, proteção de dados, auditoria, armazenamento de objetos e integração com um serviço de assinatura eletrônica. O sistema também executa localmente um modelo de linguagem para produzir rascunhos e responder a consultas baseadas no contexto clínico selecionado.
+
+\section{Justificativa}
+
+A relevância deste trabalho decorre da sensibilidade das informações tratadas e da necessidade de oferecer aos profissionais da psicologia um ambiente especializado para sua gestão. A centralização dos registros pode reduzir a fragmentação documental e facilitar a recuperação do histórico do paciente, enquanto mecanismos de autenticação, autorização e auditoria contribuem para controlar e rastrear o acesso aos dados.
+
+Sob a perspectiva tecnológica, a execução local do modelo de linguagem reduz a necessidade de transmitir o contexto clínico a provedores externos de inferência. Essa decisão não elimina os riscos associados ao uso de inteligência artificial, mas permite maior controle sobre o fluxo dos dados. A plataforma trata o conteúdo gerado como rascunho e mantém a revisão do documento sob responsabilidade do psicólogo, reconhecendo que modelos de linguagem podem produzir respostas imprecisas.
+
+Do ponto de vista acadêmico e prático, a proposta permite analisar a integração entre engenharia de software, segurança da informação, proteção de dados e Processamento de Linguagem Natural em uma aplicação voltada à saúde mental. O trabalho também documenta as decisões arquiteturais, as funcionalidades implementadas e as limitações observadas, oferecendo uma base para avaliações posteriores com usuários e para o aprimoramento do módulo de inteligência artificial.
 
 \section{Objetivos}
 
 \subsection{Objetivo Geral}
-	
-Este trabalho tem como objetivo principal a criação de uma plataforma para armazenar de modo seguro, documentos médicos psicoterapêuticos, e por meio de modelos de inteligência artificial possibilitar a geração automatizada de relatórios como laudos psicológicos, pareceres psicológicos, encaminhamentos  entre outros documentos. 
 
-A ideia é que com esta plataforma os profissionais da área tenham um local seguro para armazenar seus documentos evitando extravios e vazamento de informações sensíveis de seus pacientes, além disso, com os documentos salvos em nuvem os profissionais terão mais acessibilidades e eficiência na gestão de seus documentos, e com o uso da Inteligência artificial os profissionais terão maior eficiência na geração de documentos e maior velocidade na obtenção de informações sobre os pacientes cadastrados. 
+Desenvolver e avaliar uma plataforma web para o gerenciamento seguro de documentos psicoterapêuticos, integrando mecanismos de proteção e rastreabilidade dos dados, assinatura eletrônica e um modelo de linguagem executado localmente para auxiliar a consulta de registros e a elaboração de documentos clínicos.
 
+\subsection{Objetivos Específicos}
 
-
-\subsection{Objetivos Específicos} 
-
-Para um melhor entendimento do objetivo principal deste trabalho, podemos representar nos quatro objetivos específicos a seguir: 
+Para alcançar o objetivo geral, foram definidos os seguintes objetivos específicos:
 
 \begin{itemize}
-    \item Desenvolver uma plataforma para fazer o armazenamento seguro de documentos psicoterapêuticos.
-    \item Disponibilizar a assinatura digital via API externa, para garantir a validade legal dos documentos armazenados.
-    \item Utilização de criptografia para trazer mais segurança às informações salvas na plataforma, e evitar o vazamento de informações sensíveis de pacientes.
-    \item Implementar um modelo de IA para a geração automatizada de laudos entre outros relatórios terapêuticos, além de extração de informações e resumos de seções.
+    \item levantar e especificar os requisitos funcionais, não funcionais e as regras de negócio relacionadas à gestão de pacientes, prontuários e documentos psicoterapêuticos;
+    \item projetar e implementar uma arquitetura web com autenticação, controle de acesso baseado em papéis, proteção de dados, armazenamento de arquivos e registro de auditoria;
+    \item integrar a plataforma à API da Clicksign para encaminhar documentos ao fluxo de assinatura eletrônica;
+    \item integrar um modelo de IA executado localmente, para gerar rascunhos e realizar consultas contextuais sobre os registros do paciente;
+    \item verificar as principais funcionalidades e integrações da plataforma por meio de testes executados com dados clínicos fictícios.
 \end{itemize}
-% 
+
+\section{Metodologia}
+
+Este trabalho caracteriza-se como uma pesquisa aplicada, pois resulta no desenvolvimento de uma solução computacional direcionada a um problema de gestão documental na psicologia clínica. Inicialmente, foi realizada uma revisão bibliográfica sobre documentos de saúde, segurança da informação, proteção de dados, assinatura eletrônica, PLN e modelos de linguagem. O levantamento de requisitos considerou conversas com profissionais da psicologia e a identificação dos documentos e fluxos utilizados na prática clínica.
+
+O desenvolvimento foi conduzido de forma incremental, com ciclos de planejamento, implementação, teste e revisão baseados no Scrum. A solução foi organizada em uma arquitetura cliente-servidor, utilizando React no \textit{frontend}, FastAPI no \textit{backend}, MySQL para persistência dos dados e MinIO para armazenamento de objetos. O módulo de inteligência artificial empregou o modelo Qwen2.5-3B-Instruct quantizado no formato GGUF e executado localmente por meio da biblioteca \textit{llama.cpp}.
+
+A verificação da plataforma foi realizada por meio de testes funcionais e de integração em ambiente Linux com serviços executados em contêineres Docker. Foram utilizados dados fictícios para avaliar os fluxos de autenticação, gerenciamento de usuários e pacientes, armazenamento de documentos, auditoria, controle de permissões, assinatura eletrônica e uso do modelo de linguagem. As saídas produzidas pelo módulo de inteligência artificial foram examinadas manualmente quanto à coerência textual e à aderência ao contexto fornecido.
+
+\section{Organização do Trabalho}
+
+Além deste capítulo introdutório, o trabalho está organizado em outros três capítulos. O Capítulo 2 apresenta o referencial teórico, abordando gestão de documentos de saúde, segurança da informação, criptografia, assinatura eletrônica, armazenamento de objetos, PLN, modelos de linguagem, aplicações de inteligência artificial na saúde, legislação e trabalhos relacionados. O Capítulo 3 descreve a metodologia de desenvolvimento, os requisitos, as regras de negócio, a arquitetura, as tecnologias utilizadas, a modelagem de dados, as interfaces, as funcionalidades implementadas e os testes realizados. Por fim, o Capítulo 4 apresenta as conclusões, as limitações identificadas e as possibilidades de trabalhos futuros.
+
+%
 %--------- FIM INTRODUÇÃO------------
 %
