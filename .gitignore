@@ -1,8 +1,54 @@
+# Artefatos gerados pelo LaTeX e ferramentas auxiliares
 *.aux
-*.log
-*.fls
+*.bbl
+*.bcf
+*.blg
+*.brf
 *.fdb_latexmk
-*.lof
+*.fls
+*.glg
+*.glo
+*.gls
 *.idx
+*.ilg
+*.ind
+*.ist
+*.loa
+*.lof
+*.log
+*.lol
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex
+*.synctex.gz
 *.toc
+*.vrb
+*.xdv
+
+# Documento compilado (gerado a partir dos fontes)
 *.pdf
+
+# Diretórios de compilação
+_build/
+build/
+out/
+
+# Arquivos temporários e backups de editores
+*~
+*.bak
+*.swp
+*.swo
+*.tmp
+.#*
+
+# Configurações locais de IDE/editor
+.idea/
+.vscode/
+
+# Metadados do sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini

@@ -1,10 +1,11 @@
 % resumo em português
 \begin{resumo}
 \noindent
- 
-Neste trabalho
- \vspace{0.2cm}   
-Palavras-chave: palavra 1. palavra 2. palavra 3
+
+Este trabalho apresenta o desenvolvimento da NaraPsi, uma plataforma web destinada ao armazenamento seguro e à geração assistida de documentos clínicos utilizados por profissionais da psicologia. A solução centraliza prontuários, registros de sessões, anexos e documentos terapêuticos, incorporando mecanismos de autenticação, controle de acesso baseado em papéis, criptografia, auditoria e assinatura eletrônica. Para auxiliar a elaboração de documentos e a consulta de informações registradas nos prontuários, foi integrado o modelo de linguagem Qwen2.5-3B-Instruct, quantizado no formato GGUF e executado localmente por meio da biblioteca \textit{llama.cpp}. Essa abordagem reduz a necessidade de encaminhar dados clínicos a provedores externos de inteligência artificial. A plataforma foi implementada com React no \textit{frontend}, FastAPI no \textit{backend}, MySQL para persistência dos dados e MinIO para armazenamento de objetos. A avaliação foi conduzida com dados fictícios por meio de testes funcionais e de integração, abrangendo autenticação, gerenciamento de pacientes, armazenamento de documentos, auditoria, assinatura eletrônica e recursos de inteligência artificial. Os resultados demonstraram a viabilidade técnica da arquitetura proposta, embora a geração textual ainda exija revisão do psicólogo responsável. Conclui-se que a NaraPsi integra segurança, organização documental e processamento local de linguagem natural em uma ferramenta de apoio à prática clínica.
+
+ \vspace{0.2cm}
+\textbf{Palavras-chave}: documentos clínicos. inteligência artificial. psicologia. segurança da informação. processamento de linguagem natural.
  
 \end{resumo}
  
@@ -12,10 +13,10 @@ Palavras-chave: palavra 1. palavra 2. palavra 3
 \begin{resumo}[Abstract]	
 \begin{otherlanguage*}{english}
 \noindent 
- 
-This is the abstract of this work.
- 
+
+This work presents the development of NaraPsi, a web platform designed for the secure storage and assisted generation of clinical documents used by psychology professionals. The solution centralizes patient records, session notes, attachments, and therapeutic documents while incorporating authentication, role-based access control, encryption, auditing, and electronic signature mechanisms. To support document preparation and queries about information recorded in patient files, the Qwen2.5-3B-Instruct language model was integrated in GGUF quantized format and executed locally through the \textit{llama.cpp} library. This approach reduces the need to send clinical data to external artificial intelligence providers. The platform was implemented using React for the frontend, FastAPI for the backend, MySQL for data persistence, and MinIO for object storage. The evaluation used fictitious data in functional and integration tests covering authentication, patient management, document storage, auditing, electronic signatures, and artificial intelligence resources. The results demonstrated the technical feasibility of the proposed architecture, although generated text must still be reviewed by the responsible psychologist. It is concluded that NaraPsi combines security, document organization, and local natural language processing in a tool that supports clinical practice.
+
 \vspace{0.2cm}
-Key-words: Word 1. Word 2. Word 3
+\textbf{Keywords}: clinical documents. artificial intelligence. psychology. information security. natural language processing.
 \end{otherlanguage*}
 \end{resumo}

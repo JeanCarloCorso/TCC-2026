@@ -8,7 +8,7 @@ Tradicionalmente, esses documentos são elaborados e armazenados utilizando ferr
 
 O sistema foi concebido considerando os princípios fundamentais de segurança da informação — confidencialidade, integridade e disponibilidade — além da conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018). Para isso, foram implementados mecanismos de autenticação segura, controle de acesso baseado em perfis, criptografia de dados sensíveis e registro auditável de operações realizadas na plataforma.
 
-Um dos diferenciais da solução proposta é a integração de mecanismos de inteligência artificial aplicados ao Processamento de Linguagem Natural (Natural Language Processing – NLP). Por meio da utilização de modelos de linguagem de grande escala (Large Language Models – LLMs), o sistema é capaz de auxiliar o profissional na geração automatizada de documentos clínicos e na análise contextual de informações registradas ao longo do acompanhamento terapêutico.
+Um dos diferenciais da solução proposta é a integração de mecanismos de inteligência artificial aplicados ao Processamento de Linguagem Natural (PLN). Por meio da utilização de modelos de linguagem de grande escala (\textit{Large Language Models} -- LLMs), o sistema auxilia o profissional na geração de documentos clínicos e na consulta contextual de informações registradas ao longo do acompanhamento terapêutico.
 
 A plataforma foi projetada seguindo o paradigma de aplicações web modernas, com arquitetura cliente-servidor e interface acessível por navegadores em diferentes dispositivos. Dessa forma, busca-se garantir não apenas segurança e confiabilidade no tratamento dos dados, mas também usabilidade e eficiência no fluxo de trabalho dos profissionais de saúde mental.
 
@@ -90,7 +90,7 @@ RNF5.  & O sistema deve ser compatível com navegadores modernos (Chrome, Firefo
 RNF6.  & O tempo de resposta para geração de documentos automatizados via IA deve ser inferior a 30 segundos em condições normais de operação. \\
 RNF7.  & O sistema deve utilizar protocolos seguros (HTTPS/TLS) para toda comunicação entre cliente e servidor. \\
 RNF8.  & A plataforma deverá ser desenvolvida com arquitetura modular para facilitar a manutenção e futura escalabilidade. \\
-RNF9.  & A plataforma deve integrar com a API de assinatura digital do ClickSign. \\
+RNF9.  & A plataforma deve integrar com a API de assinatura eletrônica da Clicksign. \\
 RNF10. & O sistema deve armazenar os documentos em formato PDF/A, garantindo sua legibilidade e validade jurídica a longo prazo. \\
 \bottomrule
 \end{tabular}
@@ -133,7 +133,7 @@ RN15 & O psicólogo poderá cadastrar modelos personalizados de documentos para 
 \begin{table}[H]
 \centering
 \caption{Atores do Sistema}
-\begin{tabular}{@{}lp{13cm}@{}}
+\begin{tabular}{@{}p{3.4cm}p{11.2cm}@{}}
 \toprule
 \rowcolor[HTML]{EFEFEF} 
 \textbf{Ator} & \textbf{Descrição} \\ \midrule
@@ -161,11 +161,11 @@ Para o armazenamento de arquivos e documentos gerados pelo sistema foi utilizado
 
 A geração de documentos em formato PDF é realizada utilizando a biblioteca WeasyPrint, responsável por converter documentos HTML em arquivos PDF com alta fidelidade visual.
 
-O sistema também integra recursos de inteligência artificial por meio da biblioteca \textit{llama-cpp-python}, que permite a execução local de modelos de linguagem de grande escala (LLMs) em formato \textit{GGUF}, como \textit{Mistral-7B}, \textit{Llama-3} e \textit{Qwen2.5}. A implementação utiliza a classe \textit{Llama} para carregar o modelo em memória, permitindo o \textit{offloading} de camadas para a GPU (configurado via \textit{n\_gpu\_layers}) para otimização de performance. Essa abordagem garante que o processamento ocorra sem tráfego de dados sensíveis para nuvens públicas, reforçando a soberania de dados.
+O sistema também integra recursos de inteligência artificial por meio da biblioteca \textit{llama-cpp-python}, que permite a execução local de modelos de linguagem em formato GGUF. Na configuração avaliada, foi utilizado o modelo Qwen2.5-3B-Instruct quantizado. A implementação utiliza a classe \textit{Llama} para carregar o modelo em memória, permitindo o \textit{offloading} de camadas para a GPU, configurado pelo parâmetro \textit{n\_gpu\_layers}. Essa abordagem evita o envio do contexto clínico a serviços externos de inferência.
 
 Para garantir a segurança das credenciais de acesso e autenticação dos usuários, são utilizadas as bibliotecas python-jose, responsável pela geração e validação de tokens JWT, e Passlib, utilizada para aplicar algoritmos seguros de hashing de senhas.
 
-Por fim, o sistema integra a API da plataforma Clicksign para a realização de assinaturas digitais com validade jurídica, permitindo que documentos terapêuticos possam ser assinados eletronicamente de forma segura e conforme a legislação vigente.
+Por fim, o sistema integra a API da plataforma Clicksign para a realização de assinaturas eletrônicas, permitindo que documentos terapêuticos sejam encaminhados ao fluxo de assinatura disponibilizado pelo serviço.
 
 \section{Arquitetura do Sistema}
 
@@ -256,11 +256,18 @@ Cada registro de log armazena metadados essenciais, como o \textit{timestamp} da
 
 A integração de inteligência artificial no sistema NaraPsi visa auxiliar o profissional na elaboração de documentos e na extração de informações de prontuários.
 
-\subsection{Geração Automatizada}
+\subsection{Fluxo de Geração Automatizada}
 
-Quando o modelo de documento possui campos configurados para geração automática por inteligência artificial, o sistema injeta o contexto clínico do paciente — recuperado a partir da anamnese e do histórico consolidado de sessões — no \textit{template} de entrada (\textit{prompt}) do modelo. A consulta ao \textit{LLM} é gerenciada pela classe \textit{agenteIA}, que utiliza parâmetros de geração como \textit{n\_ctx} para dimensionamento da janela de contexto e \textit{n\_threads} para paralelismo computacional.
+A utilização da IA na plataforma atua de forma transparente como um assistente invisível ao psicólogo, seguindo o fluxo de integração do \textit{backend}:
 
-Esta funcionalidade permite que trechos textuais complexos, como sínteses de sessões ou sugestões de encaminhamento, sejam pré-redigidos pela IA com base nas informações já registradas, reduzindo a carga administrativa do psicólogo.
+\begin{enumerate}
+    \item \textbf{Usuário / Frontend:} O psicólogo solicita a elaboração de um documento dentro do prontuário. Ele insere algumas palavras-chave no formulário principal se necessário.
+    \item \textbf{Entrada e Montagem do Contexto (Backend):} O \textit{backend} (via microsserviços em FastAPI), constrói um \textit{prompt} concatenando uma "Instrução de Sistema" (\textit{system prompt} oculto), que delimita o tom técnico-clínico esperado, acrescido dos dados textuais em crú recuperados a partir da anamnese e do histórico consolidado das sessões.
+    \item \textbf{Integração com o LLM (AgenteIA):} A classe interna \texttt{agenteIA} interage diretamente com o modelo carregado em memória por meio da biblioteca \textit{llama.cpp} para Python. Essa consulta passa pela contagem prévia de \textit{tokens} por meio da função de vetorização (\texttt{tokenize()}) — de modo a prevenir o estouro da capacidade de \textit{input} (\textit{context window} delimitada por \textit{n\_ctx}) e processada pelo parâmetro \textit{n\_threads}.
+    \item \textbf{Saída de Dados e Exibição:} O LLM formula, baseado em previsão de métricas probabilísticas, um rascunho gramaticalmente coeso e técnico, organizando aquele montante de dados pregressos em formato profissional. O resultado é devolvido ao canal HTTP e preenche de imediato o editor de texto do psicólogo na tela de interface de usuário.
+\end{enumerate}
+
+Esta funcionalidade garante que minutas textuais complexas, como sínteses de evolução mental ou indicações multiprofissionais, surjam pré-redigidas para o psicólogo. A sua atribuição posterior converte-se em lapidar detalhes sutis — salvaguardando rigorosamente recursos críticos em tempo clínico sem abrir mão dos padrões éticos instituídos.
 
 \section{Funcionamento das Principais Funcionalidades}
 
@@ -281,7 +288,7 @@ A Figura~\ref{fig:fluxo-geracao-documentos} apresenta o fluxo completo de geraç
 \label{fig:fluxo-geracao-documentos}
 \end{figure}
 
-Conforme ilustrado no diagrama, o processo inicia-se quando o psicólogo seleciona um paciente e o tipo de documento desejado na interface da aplicação. O frontend envia uma requisição ao backend, que valida as permissões do usuário e recupera o modelo de documento armazenado no banco de dados. Durante o preenchimento do template, o sistema substitui variáveis dinâmicas por informações do paciente e, quando configurado, solicita ao agente de inteligência artificial a geração automática de determinados trechos textuais. O conteúdo final é armazenado na base de dados e pode posteriormente ser convertido para o formato PDF por meio da biblioteca WeasyPrint. Em casos onde o documento necessita de assinatura digital, o sistema integra-se à API da plataforma ClickSign e armazena o arquivo final no serviço de armazenamento MinIO.
+Conforme ilustrado no diagrama, o processo inicia-se quando o psicólogo seleciona um paciente e o tipo de documento desejado na interface da aplicação. O frontend envia uma requisição ao backend, que valida as permissões do usuário e recupera o modelo de documento armazenado no banco de dados. Durante o preenchimento do template, o sistema substitui variáveis dinâmicas por informações do paciente e, quando configurado, solicita ao agente de inteligência artificial a geração automática de determinados trechos textuais. O conteúdo final é armazenado na base de dados e pode posteriormente ser convertido para o formato PDF por meio da biblioteca WeasyPrint. Nos casos em que o documento necessita de assinatura eletrônica, o sistema integra-se à API da plataforma Clicksign e armazena o arquivo final no serviço de armazenamento MinIO.
 
 \subsection{Auditoria}
 
@@ -424,9 +431,9 @@ O \textit{design} utiliza elementos de \textit{feedback} visual, como etiquetas 
 
 A Figura~\ref{fig:assistente-ia} ilustra a interface do assistente virtual inteligente, denominado Nara IA, integrado de forma contextual ao prontuário do paciente. Diferente de ferramentas de chat genéricas, este componente foi projetado como um agente especializado que opera exclusivamente sobre o conjunto de dados clínicos do paciente em visualização, respeitando o isolamento de dados entre diferentes prontuários.
 
-A interface utiliza o padrão de \textit{chatbot} para permitir que o psicólogo realize consultas em linguagem natural sobre o histórico terapêutico. No exemplo apresentado, observa-se a capacidade do sistema em realizar o processamento de linguagem natural (NLP) para extrair informações específicas, como a "queixa principal", a partir de múltiplos relatos de sessões anteriores, sem que o profissional precise realizar uma leitura manual exaustiva de todo o histórico.
+A interface utiliza o padrão de \textit{chatbot} para permitir que o psicólogo realize consultas em linguagem natural sobre o histórico terapêutico. No exemplo apresentado, observa-se a capacidade do sistema de empregar PLN para extrair informações específicas, como a "queixa principal", a partir de múltiplos relatos de sessões anteriores.
 
-Tecnicamente, o componente implementa uma arquitetura de \textit{prompting} que concatena os dados clínicos anonimizados ao modelo de linguagem local (Mistral/Llama), garantindo que a resposta seja fundamentada apenas em evidências registradas no sistema. Adicionalmente, a interface exibe um aviso de isenção de responsabilidade (\textit{disclaimer}) destacando que a ferramenta atua como um sistema de apoio à decisão, mantendo a responsabilidade final da validação clínica sob o profissional de saúde, conforme estabelecido na regra de negócio.
+Tecnicamente, o componente implementa uma arquitetura de \textit{prompting} que fornece ao modelo Qwen2.5-3B-Instruct o contexto clínico selecionado. O \textit{prompt} orienta o modelo a responder com base nos registros fornecidos, mas a possibilidade de geração de informações sem suporte não é eliminada. Por isso, a interface informa que a ferramenta atua como apoio e que toda resposta deve ser validada pelo profissional responsável.
 
 \begin{figure}[H]
     \centering
@@ -484,7 +491,7 @@ Os diagramas produzidos nesta seção visam ilustrar a arquitetura, o comportame
 
 \subsection{Arquitetura}
 
-A aplicação é estruturada em três camadas principais: Frontend, Backend e serviços externos. A comunicação entre o cliente (React) e o servidor (FastAPI) ocorre por meio do protocolo seguro HTTPS/TLS. Os dados sensíveis dos pacientes são persistidos no banco \textit{MySQL} utilizando criptografia simétrica \textit{AES} em repouso (nível de aplicação). Os arquivos anexados e os documentos também são criptografados e salvos no \textit{MinIO}. O backend integra com uma API de assinatura digital (ClicSign) e utiliza uma IA local baseada no modelo Mistral para auxiliar na geração de conteúdos clínicos. Todo o fluxo respeita as diretrizes da LGPD.
+A aplicação é estruturada em três camadas principais: \textit{frontend}, \textit{backend} e serviços externos. A comunicação entre o cliente React e o servidor FastAPI ocorre por meio de HTTPS/TLS. Os dados sensíveis dos pacientes são persistidos no banco MySQL com criptografia simétrica em nível de aplicação. Os arquivos anexados e os documentos são protegidos e armazenados no MinIO. O \textit{backend} integra-se à API de assinatura eletrônica da Clicksign e executa localmente o modelo Qwen2.5-3B-Instruct para auxiliar na geração de conteúdos clínicos. Os mecanismos implementados buscam atender aos princípios de segurança e proteção de dados aplicáveis ao sistema.
 
 \begin{figure}[H]
     \centering
@@ -506,7 +513,93 @@ O diagrama de casos de uso tem como objetivo representar as interações entre o
 
 \section{Testes e Resultados}
 
-Cada funcionalidade implementada passou por ciclos de testes unitários e testes de integração, com o objetivo de garantir a correta execução das operações e a integridade das informações manipuladas pelo sistema. Ainda por definir melhor os detalhes dos resultados obtidos.
+\subsection{Metodologia de Testes}
+
+Os testes realizados na plataforma NaraPsi tiveram como objetivo validar o funcionamento das funcionalidades principais do sistema, bem como verificar a integração entre os diferentes componentes da arquitetura desenvolvida.
+
+Os testes foram conduzidos manualmente em ambiente Linux, utilizando containers Docker para execução isolada dos serviços da aplicação. A arquitetura de testes envolveu o frontend desenvolvido em React, o backend implementado em Python utilizando o framework FastAPI, o banco de dados MySQL, o serviço de armazenamento MinIO e o modelo de inteligência artificial executado localmente.
+
+Para a realização dos testes, foram utilizados dados fictícios simulando cenários clínicos reais. Os conteúdos utilizados foram previamente validados por um profissional da área da psicologia, buscando garantir maior proximidade com situações reais de utilização da plataforma.
+
+Durante os testes foram avaliadas funcionalidades relacionadas à autenticação, gerenciamento de usuários, cadastro de pacientes, armazenamento de documentos, integração com inteligência artificial, auditoria, controle de permissões e assinatura digital de documentos.
+
+Além da validação funcional, também foram realizados testes de integração entre os módulos do sistema, verificando a comunicação entre backend, banco de dados, armazenamento de objetos, interface web e serviços externos.
+
+\subsection{Testes Funcionais}
+
+\subsubsection{Autenticação e Controle de Acesso}
+
+Foram realizados testes relacionados ao processo de autenticação de usuários, verificando a validação correta de credenciais, restrição de acesso a usuários não autenticados e funcionamento do controle de permissões baseado em perfis.
+
+Os testes demonstraram funcionamento adequado do mecanismo de autenticação implementado, garantindo que apenas usuários autorizados pudessem acessar informações clínicas e funcionalidades administrativas da plataforma.
+
+\subsubsection{Cadastro e Gerenciamento de Pacientes}
+
+Os testes de gerenciamento de pacientes envolveram operações de cadastro, atualização, consulta e remoção de registros clínicos.
+
+Durante a execução dos testes, o sistema apresentou comportamento estável, realizando corretamente a persistência e recuperação dos dados armazenados no banco de dados MySQL.
+
+\subsubsection{Upload e Recuperação de Documentos}
+
+Foram realizados testes de envio, armazenamento e recuperação de documentos clínicos utilizando o serviço MinIO executado localmente.
+
+O sistema utilizou buckets distintos para organização dos arquivos, sendo o bucket \textit{documentos} destinado aos documentos gerados pela plataforma e o bucket \textit{anexos} utilizado para arquivos adicionados manualmente ao prontuário do paciente.
+
+Os testes confirmaram o funcionamento adequado da persistência e recuperação dos arquivos armazenados, demonstrando estabilidade durante as operações de upload e download.
+
+\subsubsection{Auditoria e Rastreabilidade}
+
+Foram realizados testes para validação do sistema de auditoria da plataforma, verificando o registro automático de operações realizadas pelos usuários.
+
+O mecanismo de auditoria demonstrou capacidade de rastrear ações executadas no sistema, contribuindo para maior controle e conformidade com os requisitos de segurança e rastreabilidade de dados clínicos.
+
+\subsubsection{Assinatura Eletrônica}
+
+A funcionalidade de assinatura eletrônica foi validada por meio da integração com a plataforma Clicksign utilizando o ambiente de testes disponibilizado pelo serviço.
+
+Durante os testes, foi possível realizar o envio de documentos ao fluxo de assinatura e recuperar seu estado por meio da integração implementada.
+
+\subsection{Testes de Integração}
+
+Os testes de integração tiveram como objetivo validar a comunicação entre os diferentes componentes da arquitetura da plataforma.
+
+Foram realizados testes de integração entre:
+
+\begin{itemize}
+    \item frontend React e backend FastAPI;
+    \item backend e banco de dados MySQL;
+    \item backend e serviço de armazenamento MinIO;
+    \item backend e mecanismo de assinatura eletrônica Clicksign;
+    \item backend e módulo de inteligência artificial executado localmente via \textit{llama.cpp}.
+\end{itemize}
+
+Os testes demonstraram funcionamento adequado das integrações implementadas, permitindo troca consistente de informações entre os serviços da plataforma.
+
+Também foram realizados testes envolvendo persistência de dados em containers Docker, verificando estabilidade operacional da aplicação durante sua execução em ambiente Linux.
+
+\subsection{Avaliação da Inteligência Artificial}
+
+A avaliação do módulo de inteligência artificial foi realizada utilizando prompts simulando cenários clínicos reais, contendo informações fictícias validadas previamente por um profissional da área da psicologia.
+
+O sistema utilizou o modelo Qwen2.5-3B-Instruct quantizado no formato \textit{Q4\_K\_M.gguf}, executado localmente por meio da biblioteca \textit{llama.cpp}.
+
+Durante os testes, a inteligência artificial demonstrou capacidade satisfatória na geração automatizada de laudos psicológicos e na extração contextual de informações clínicas a partir dos registros presentes no prontuário dos pacientes.
+
+Também foram realizados testes utilizando o assistente conversacional integrado à plataforma, permitindo consultas textuais relacionadas ao histórico clínico armazenado.
+
+Os resultados gerados foram avaliados manualmente, apresentando coerência textual e aderência adequada ao contexto clínico fornecido.
+
+Durante os testes realizados, não foram observados casos significativos de alucinação do modelo, embora a validação humana continue sendo indispensável devido à natureza crítica das informações médicas e psicológicas.
+
+\subsection{Limitações Observadas}
+
+Apesar dos resultados satisfatórios obtidos, algumas limitações foram observadas durante os testes.
+
+A principal limitação identificada está relacionada ao desempenho da inferência do modelo de inteligência artificial executado localmente. Como o processamento foi realizado em um computador pessoal, houve atrasos perceptíveis na geração das respostas, especialmente em prompts mais extensos.
+
+Além disso, embora os resultados obtidos tenham apresentado boa qualidade textual, a geração automatizada de documentos ainda possui espaço para melhorias relacionadas à precisão contextual e refinamento da linguagem clínica utilizada nos relatórios.
+
+Dessa forma, recomenda-se que os documentos gerados pela inteligência artificial sejam sempre revisados pelo profissional responsável antes de sua utilização em contexto clínico real.
 
 % 
 %--------- FIM DESENVOLVIMENTO------------

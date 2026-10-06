@@ -1,3 +1,4 @@
+\PassOptionsToPackage{bookmarks=false}{hyperref}
 %=======================================================================
 %
 % ------------------------------------------------------------------------
@@ -65,8 +66,8 @@
 % AGRADECIMENTO
 \include{pretextuais/agradecimentos}
 
-%EPÍGRAFE
-\include{pretextuais/epigrafe}
+% EPÍGRAFE (elemento opcional; habilitar quando houver conteúdo)
+% \include{pretextuais/epigrafe}
 
 % RESUMO
 \include{pretextuais/resumo}
@@ -94,8 +95,21 @@
 % inserir lista de abreviaturas e siglas
 % ---
 \begin{siglas}
-  \item[SIGLA] descrição
-
+  \item[AES] \textit{Advanced Encryption Standard}
+  \item[API] \textit{Application Programming Interface}
+  \item[CRUD] \textit{Create, Read, Update and Delete}
+  \item[GGUF] \textit{GPT-Generated Unified Format}
+  \item[HTML] \textit{HyperText Markup Language}
+  \item[HTTP] \textit{Hypertext Transfer Protocol}
+  \item[IA] Inteligência Artificial
+  \item[JWT] \textit{JSON Web Token}
+  \item[LGPD] Lei Geral de Proteção de Dados Pessoais
+  \item[LLM] \textit{Large Language Model}
+  \item[PDF] \textit{Portable Document Format}
+  \item[PLN] Processamento de Linguagem Natural
+  \item[RBAC] \textit{Role-Based Access Control}
+  \item[SHA] \textit{Secure Hash Algorithm}
+  \item[TLS] \textit{Transport Layer Security}
 \end{siglas}
 % ---
 
@@ -124,7 +138,9 @@
 
 %Revisão
 \include{conteudo/fundamentacao}
-\include{conteudo/desenvolvimento}
+% O uso de \input evita a gravação duplicada do checkpoint de contadores
+% produzida pela versão do modelo institucional neste capítulo.
+\input{conteudo/desenvolvimento}
 
 %CONCLUSÃO
 \include{conteudo/conclusao}
@@ -138,7 +154,10 @@
 % Referências bibliográficas
 % ----------------------------------------------------------
 
+\begingroup
+\sloppy
 \bibliography{referencias}
+\endgroup
 
 %Apêndices
 % \include{postextuais/apendice}
