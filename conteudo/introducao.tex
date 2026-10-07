@@ -44,7 +44,7 @@ Este trabalho caracteriza-se como uma pesquisa aplicada, pois resulta no desenvo
 
 O desenvolvimento foi conduzido de forma incremental, com ciclos de planejamento, implementação, teste e revisão baseados no Scrum. A solução foi organizada em uma arquitetura cliente-servidor, utilizando React no \textit{frontend}, FastAPI no \textit{backend}, MySQL para persistência dos dados e MinIO para armazenamento de objetos. O módulo de inteligência artificial empregou o modelo Qwen2.5-3B-Instruct quantizado no formato GGUF e executado localmente por meio da biblioteca \textit{llama.cpp}.
 
-A verificação da plataforma foi realizada por meio de testes funcionais e de integração em ambiente Linux com serviços executados em contêineres Docker. Foram utilizados dados fictícios para avaliar os fluxos de autenticação, gerenciamento de usuários e pacientes, armazenamento de documentos, auditoria, controle de permissões, assinatura eletrônica e uso do modelo de linguagem. As saídas produzidas pelo módulo de inteligência artificial foram examinadas manualmente quanto à coerência textual e à aderência ao contexto fornecido.
+A verificação da plataforma foi estruturada em casos funcionais e de integração e em um protocolo específico para o modelo de linguagem. Oito casos funcionais, contendo entradas, procedimentos e critérios de aceitação, foram executados manualmente no ambiente de desenvolvimento. Para o módulo de inteligência artificial, seis casos com dados inteiramente fictícios foram executados em contêiner Docker. As respostas foram avaliadas quanto à aderência ao contexto e à presença de proposições sem suporte, além do registro da latência e da quantidade de \textit{tokens} processados.
 
 \section{Organização do Trabalho}
 
