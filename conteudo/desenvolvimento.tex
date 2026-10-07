@@ -639,6 +639,44 @@ Os resultados indicam que o \textit{prompt} restritivo foi eficaz nos três cen�
 
 A amostra de seis casos é exploratória, cada caso foi executado uma única vez e a segmentação das proposições foi realizada pelo autor, que também desenvolveu a plataforma. A temperatura diferente de zero admite variação entre execuções; por isso, os percentuais não devem ser generalizados como taxa de segurança do modelo. A latência também depende do tamanho da entrada e da saída, do estado do computador e do aproveitamento dos recursos gráficos. Não foram medidos tempo até o primeiro \textit{token}, consumo de memória ou energia.
 
+\subsection{Possibilidade de modelos maiores e infraestrutura computacional}
+
+A família Qwen2.5 disponibiliza modelos densos com 3, 7, 14 e 32 bilhões de parâmetros, entre outros tamanhos. Os resultados divulgados pelos desenvolvedores indicam aumento de capacidade em diferentes tarefas à medida que se ampliam os modelos, embora esses resultados não tenham sido produzidos no domínio da psicologia clínica e, portanto, não comprovem melhoria na NaraPsi \cite{qwen2024qwen25}. Um modelo maior pode apresentar melhor seguimento de instruções, síntese de históricos extensos e preservação de relações temporais. Entretanto, também aumenta o consumo de memória, a latência e a capacidade de produzir informações incorretas com aparência plausível.
+
+A quantização reduz o espaço ocupado pelos pesos ao representá-los com menor precisão. No \textit{llama.cpp}, formatos como \texttt{Q4\_K\_M}, \texttt{Q5\_K\_M} e \texttt{Q8\_0} oferecem diferentes compromissos entre tamanho e preservação numérica \cite{llamacpp2026quantization}. A Tabela~\ref{tab:requisitos-modelos} apresenta estimativas para o planejamento de testes locais. O tamanho dos pesos foi aproximado a partir do número de parâmetros e da densidade de cada quantização. As recomendações de RAM incluem margem para sistema operacional, serviços da NaraPsi, contexto de 10.240 \textit{tokens} e estruturas internas da inferência. A VRAM indicada corresponde à execução com todas ou quase todas as camadas na GPU; o processamento híbrido permite utilizar menos VRAM, mas tende a elevar a latência.
+
+\begin{table}[H]
+\centering
+\caption{Estimativa de recursos para modelos Qwen2.5 quantizados}
+\label{tab:requisitos-modelos}
+\footnotesize
+\renewcommand{\arraystretch}{1.12}
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}p{1.5cm}|>{\centering\arraybackslash}p{2cm}|>{\centering\arraybackslash}p{2.3cm}|>{\centering\arraybackslash}p{2.7cm}|>{\centering\arraybackslash}X|}
+\hline
+\textbf{Modelo} & \textbf{Quantização} & \textbf{Pesos estimados} & \textbf{RAM recomendada} & \textbf{VRAM de referência} \\ \hline
+3B & Q4\_K\_M & 1,9~GiB & 8~GiB & 4~GiB \\ \hline
+3B & Q5\_K\_M & 2,1~GiB & 8~GiB & 4~GiB \\ \hline
+3B & Q8\_0 & 3,1~GiB & 12--16~GiB & 6~GiB \\ \hline
+7B & Q4\_K\_M & 4,4~GiB & 16~GiB & 8~GiB \\ \hline
+7B & Q5\_K\_M & 5,1~GiB & 16--24~GiB & 8~GiB \\ \hline
+7B & Q8\_0 & 7,6~GiB & 24--32~GiB & 12~GiB \\ \hline
+14B & Q4\_K\_M & 8,4~GiB & 24--32~GiB & 12~GiB \\ \hline
+14B & Q5\_K\_M & 9,8~GiB & 32~GiB & 16~GiB \\ \hline
+14B & Q8\_0 & 14,6~GiB & 32--48~GiB & 24~GiB \\ \hline
+32B & Q4\_K\_M & 18,6~GiB & 48--64~GiB & 24~GiB \\ \hline
+32B & Q5\_K\_M & 21,7~GiB & 64~GiB & 32~GiB \\ \hline
+32B & Q8\_0 & 32,3~GiB & 64--96~GiB & 40--48~GiB \\ \hline
+\end{tabularx}
+% Compensa o recuo vertical interno do comando \fonte da classe institucional.
+\par\vspace{0.8cm}
+\fonte{Elaborado pelo autor (2026), com base em Qwen Team (2024) e \textit{llama.cpp} (2026).}
+\end{table}
+
+Na máquina utilizada neste trabalho, os 13~GiB de RAM são compartilhados com o sistema operacional e com os serviços da plataforma. Por essa razão, o Qwen2.5-3B-Instruct em \texttt{Q4\_K\_M} permanece adequado ao protótipo. A versão 7B em \texttt{Q4\_K\_M} constitui a alternativa mais próxima para comparação, mas sua execução na máquina atual pode aumentar a paginação de memória e o tempo de resposta. Para uso regular, recomenda-se avaliar o modelo 7B em equipamento com 32~GiB de RAM e GPU com 8 a 12~GiB de VRAM. O modelo 14B requer, preferencialmente, 32~GiB de RAM e GPU com 16~GiB de VRAM. A versão 32B demanda uma estação ou servidor com, pelo menos, 64~GiB de RAM e GPU de 24~GiB para a quantização Q4, não se mostrando proporcional à infraestrutura atual do protótipo.
+
+A adoção de um modelo maior somente poderá ser considerada melhoria se produzir resultados superiores sob o mesmo protocolo experimental. A comparação deve manter constantes os dados fictícios, as instruções, a janela de contexto e os critérios de avaliação, além de registrar latência, consumo máximo de RAM e VRAM, quantidade de proposições sem suporte e variação entre repetições. Dessa forma, evita-se associar o aumento do número de parâmetros, de maneira automática, à redução de alucinações.
+
 Em consequência, as saídas devem permanecer caracterizadas como minutas. Antes da inserção em documento clínico ou de sua assinatura, o profissional responsável deve confrontar cada afirmação com o prontuário. Como continuidade experimental, recomenda-se ampliar o conjunto, realizar repetições com sementes controladas, empregar dois avaliadores independentes e registrar automaticamente latência, contagem de \textit{tokens} e versão do modelo.
 
 % 
