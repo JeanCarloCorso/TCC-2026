@@ -504,28 +504,36 @@ Os diagramas produzidos nesta seção visam ilustrar a arquitetura, o comportame
 
 \subsection{Arquitetura}
 
-A aplicação é estruturada em \textit{frontend}, \textit{backend}, bancos e serviços auxiliares. O React consome a API FastAPI; a proteção por HTTPS/TLS é uma responsabilidade da infraestrutura de implantação. Campos clínicos selecionados são criptografados com Fernet antes da persistência no MySQL. Os arquivos são armazenados no MinIO, cuja criptografia em repouso depende da configuração do ambiente. O \textit{backend} integra-se à API de assinatura eletrônica da Clicksign e executa localmente o modelo Qwen2.5-3B-Instruct para auxiliar na geração de conteúdos clínicos. Os mecanismos implementados buscam atender aos princípios de segurança e proteção de dados aplicáveis ao sistema.
+A aplicação é estruturada em \textit{frontend}, \textit{backend}, serviços de persistência e componentes auxiliares. O React consome a API FastAPI; a proteção por HTTPS/TLS é responsabilidade da infraestrutura de implantação. O \textit{backend} acessa o esquema principal do MySQL, armazena arquivos no MinIO, integra-se à Clicksign e executa localmente o Qwen2.5-3B-Instruct no mesmo processo da aplicação. Para a auditoria, os eventos são cifrados e enfileirados no Redis, configurado com persistência AOF. Um contêiner independente, denominado \texttt{audit\_worker}, transfere atomicamente cada mensagem para uma fila de processamento, realiza até cinco tentativas e encaminha as falhas persistentes para uma fila de mensagens não processadas. Durante esse fluxo, o \textit{worker} cifra os campos sensíveis, calcula o encadeamento SHA-256 e persiste os registros no esquema \texttt{auditoria} do MySQL. A Figura~\ref{fig:arquitetura-sistema} representa esses componentes e seus principais fluxos.
 
 \begin{figure}[H]
     \centering
     \begin{tikzpicture}[
-        node distance=1.15cm and 1.45cm,
+        scale=0.82,
+        transform shape,
         bloco/.style={draw, rounded corners, align=center, minimum width=2.8cm, minimum height=1cm, fill=gray!8},
-        servico/.style={draw, align=center, minimum width=2.7cm, minimum height=0.9cm, fill=blue!5},
-        fluxo/.style={-{Latex[length=2.2mm]}, thick}
+        servico/.style={draw, align=center, minimum width=2.8cm, minimum height=1cm, fill=blue!5},
+        externo/.style={draw, dashed, align=center, minimum width=2.8cm, minimum height=1cm, fill=orange!8},
+        fluxo/.style={-{Latex[length=2.2mm]}, thick},
+        legenda/.style={font=\scriptsize, fill=white, inner sep=1.5pt, align=center}
     ]
-        \node[bloco] (front) {\textit{Frontend}\\React};
-        \node[bloco, right=of front] (back) {\textit{Backend}\\FastAPI};
-        \node[servico, above right=0.25cm and 1.4cm of back] (click) {Clicksign\\assinatura eletrônica};
-        \node[servico, right=of back] (minio) {MinIO\\arquivos};
-        \node[servico, below right=0.25cm and 1.4cm of back] (mysql) {MySQL\\dados relacionais};
-        \node[servico, below=of back] (qwen) {Qwen2.5-3B-Instruct\\inferência local};
+        \node[bloco] (front) at (0,0) {\textit{Frontend}\\React};
+        \node[bloco] (back) at (4.2,0) {\textit{Backend}\\FastAPI};
+        \node[externo] (click) at (9.0,2.5) {Clicksign\\assinatura eletrônica};
+        \node[servico] (minio) at (9.0,0) {MinIO\\documentos e anexos};
+        \node[servico, minimum height=1.45cm] (mysql) at (9.0,-2.25) {MySQL 8.0\\esquema principal\\esquema \texttt{auditoria}};
+        \node[servico] (redis) at (3.2,-4.55) {Redis 7\\filas de auditoria e AOF};
+        \node[servico] (worker) at (8.2,-4.55) {\texttt{audit\_worker}\\Fernet e cadeia SHA-256};
+        \node[servico] (qwen) at (4.2,2.5) {Qwen2.5-3B-Instruct\\\texttt{llama.cpp} local};
 
-        \draw[fluxo,<->] (front) -- node[above, font=\scriptsize] {API REST} (back);
-        \draw[fluxo,<->] (back) -- (click);
+        \draw[fluxo,<->] (front) -- node[legenda, above] {API REST} (back);
+        \draw[fluxo,<->] (back.north east) -- (click.south west);
         \draw[fluxo,<->] (back) -- (minio);
-        \draw[fluxo,<->] (back) -- (mysql);
+        \draw[fluxo,<->] (back.south east) -- (mysql.west);
         \draw[fluxo,<->] (back) -- (qwen);
+        \draw[fluxo] (back.south) |- (redis.north);
+        \draw[fluxo] (redis) -- (worker);
+        \draw[fluxo] (worker.north east) -- (mysql.south);
     \end{tikzpicture}
     \par\vspace{0.5cm}
     \caption{Diagrama de arquitetura do sistema. Fonte: elaborado pelo autor (2026).}
