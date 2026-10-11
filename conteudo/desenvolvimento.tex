@@ -45,7 +45,8 @@ De acordo com os profissionais consultados, os documentos mais comumente gerados
 Durante as entrevistas, os psicólogos também relataram grande interesse no uso de ferramentas baseadas em inteligência artificial (IA), especialmente para a geração automatizada de documentos padronizados, como laudos, pareceres e encaminhamentos. Segundo os profissionais, a IA poderia ainda facilitar o acesso a informações específicas sobre os pacientes, como medicamentos em uso, sintomas relatados, queixas recorrentes, composição familiar e rotina diária. Atualmente, a obtenção dessas informações exige a leitura manual de todos os relatos de sessões anteriores, o que consome tempo e dificulta a prática clínica.
 
 \subsection{Prototipação}
-Averiguar necessidade para cada projeto.
+
+Com base nas histórias de usuário e nos fluxos identificados, foram elaboradas as interfaces iniciais da plataforma. A prototipação orientou a organização das telas de autenticação, gerenciamento de pacientes, prontuário, assistente de inteligência artificial e administração. Durante a implementação, esses protótipos foram refinados de acordo com as restrições técnicas e com os requisitos descritos nas seções seguintes.
 
 \section{Requisitos do Sistema}
 
@@ -53,7 +54,7 @@ Averiguar necessidade para cada projeto.
 
 \begin{table}[H]
 \centering
-\caption{Requisitos Funcionais do Sistema}
+\caption{Requisitos funcionais do sistema}
 \begin{tabular}{@{}lp{13cm}@{}}
 \toprule
 \rowcolor[HTML]{EFEFEF} 
@@ -77,7 +78,7 @@ RF10. & O sistema deve manter um registro de atividades e alterações realizada
 
 \begin{table}[H]
 \centering
-\caption{Descrição do Requisito Não-Funcional}
+\caption{Requisitos não funcionais do sistema}
 \begin{tabular}{@{}lp{13cm}@{}}
 \toprule
 \rowcolor[HTML]{EFEFEF} 
@@ -103,7 +104,7 @@ Esta seção apresenta as regras de negócio definidas para o sistema, que orien
 
 \begin{table}[H]
 \centering
-\caption{Regras de Negócio}
+\caption{Regras de negócio}
 \begin{tabular}{@{}lp{13cm}@{}}
 \toprule
 \rowcolor[HTML]{EFEFEF} 
@@ -132,7 +133,7 @@ RN15 & O psicólogo poderá cadastrar modelos personalizados de documentos para 
 
 \begin{table}[H]
 \centering
-\caption{Atores do Sistema}
+\caption{Atores do sistema}
 \begin{tabular}{@{}p{3.4cm}p{11.2cm}@{}}
 \toprule
 \rowcolor[HTML]{EFEFEF} 
@@ -192,8 +193,8 @@ A estrutura principal do backend é composta pelos seguintes diretórios:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/Estrutura-backend.png}
-    \caption{Estrutura de diretórios do projeto. Fonte: Autor}
-    \label{fig:Representação da estrutura de diretórios do backend da plataforma.}
+    \caption{Estrutura de diretórios do projeto. Fonte: elaborado pelo autor (2026).}
+    \label{fig:estrutura-backend}
 \end{figure}
 
 \begin{itemize}
@@ -235,7 +236,7 @@ O controle de acesso é gerenciado de forma granular por meio das tabelas de \te
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/modelo_relacional_banco_schema_principal.png}
-    \caption{Diagrama Entidade-Relacionamento do Schema Principal. Fonte: Autor}
+    \caption{Diagrama entidade-relacionamento do esquema principal. Fonte: elaborado pelo autor (2026).}
     \label{fig:schema_principal}
 \end{figure}
 
@@ -248,7 +249,7 @@ Cada registro pode armazenar \textit{timestamp}, usuário, perfil, IP, agente do
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\textwidth]{images/modelo_relacional_banco_schema_auditoria.png} % Ajuste o valor 0.8 conforme necessário
-    \caption{Diagrama Entidade-Relacionamento do Schema de Auditoria. Fonte: Autor}
+    \caption{Diagrama entidade-relacionamento do esquema de auditoria. Fonte: elaborado pelo autor (2026).}
     \label{fig:schema_auditoria}
 \end{figure}
 
@@ -296,7 +297,7 @@ A Figura~\ref{fig:fluxo-geracao-documentos} apresenta o fluxo completo de geraç
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\linewidth]{images/geracao_manipulacao_documentos.png}
-\caption{Fluxo de geração e manipulação de documentos clínicos na plataforma NaraPsi. Fonte: Autor}
+\caption{Fluxo de geração e manipulação de documentos clínicos na plataforma NaraPsi. Fonte: elaborado pelo autor (2026).}
 \label{fig:fluxo-geracao-documentos}
 \end{figure}
 
@@ -311,7 +312,7 @@ A Figura~\ref{fig:fluxo-auditoria} apresenta o fluxo de registro e processamento
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\linewidth]{images/logs auditoria.png}
-\caption{Fluxo de gravação e processamento dos logs de auditoria do sistema. Fonte: Autor}
+\caption{Fluxo de gravação e processamento dos registros de auditoria. Fonte: elaborado pelo autor (2026).}
 \label{fig:fluxo-auditoria}
 \end{figure}
 
@@ -328,7 +329,7 @@ Para melhor compreensão do processo de autenticação implementado na plataform
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.9\linewidth]{images/fluxo_autenticacao.png}
-\caption{Fluxo de autenticação da plataforma NaraPsi. Fonte: Autor}
+\caption{Fluxo de autenticação da plataforma NaraPsi. Fonte: elaborado pelo autor (2026).}
 \label{fig:fluxo-autenticacao}
 \end{figure}
 
@@ -344,7 +345,7 @@ O controle de acesso é implementado sob o paradigma de \textit{RBAC} (\textit{R
 
 As senhas dos usuários não são armazenadas em formato de texto plano. O sistema utiliza a técnica de \textit{salting} e \textit{hashing} criptográfico por meio do algoritmo \textit{bcrypt} (via biblioteca \textit{Passlib}), garantindo a resistência contra ataques de dicionário e \textit{rainbow tables}.
 
-\subsection{Integridade e Imutabilidade de Logs} 
+\subsection{Integridade dos registros de auditoria}
 
 Para promover a integridade verificável dos registros de auditoria, foi implementado um mecanismo de encadeamento criptográfico (\textit{hash chaining}), processado de forma assíncrona por um \textit{worker} em segundo plano. A técnica, baseada em princípios empregados em estruturas de dados de \textit{blockchain}, vincula matematicamente cada registro ao seu predecessor, permitindo a detecção de alterações retroativas durante a verificação da cadeia.
 
@@ -356,7 +357,7 @@ Matematicamente, o encadeamento é definido pela função recursiva:
 
 \[ H_n = \text{SHA256}(S_n \parallel H_{n-1}) \] 
 
-Onde:
+em que:
 \begin{itemize}
     \item $S_n$: representa a semente serializada de forma determinística contendo os dados (criptografados ou não) do evento $n$;
     \item $\parallel$: representa a operação de concatenação de \textit{strings};
@@ -373,7 +374,7 @@ Esta seção apresenta algumas das principais interfaces do sistema NaraPsi, com
 
 \subsection{Tela de Login}
 
-A Figura~\ref{fig:tela-login} ilustra a interface de autenticação da plataforma NaraPsi. O processo de controle de acesso foi implementado utilizando o protocolo HTTP aliado ao padrão de tokens \textit{stateless}. Ao submeter suas credenciais, o sistema realiza uma requisição cifrada ao \textit{backend}, que valida a identidade do usuário contra os \textit{hashes} armazenados no banco de dados.
+A Figura~\ref{fig:tela-login} ilustra a interface de autenticação da plataforma NaraPsi. O controle de acesso utiliza \textit{tokens} JWT e valida as credenciais informadas a partir dos \textit{hashes} armazenados no banco de dados. Na configuração de desenvolvimento, o tráfego pode ocorrer por HTTP; a confidencialidade das credenciais e do \textit{token} em trânsito depende, portanto, da configuração de HTTPS/TLS na infraestrutura de implantação.
 
 Após a validação bem-sucedida, o servidor retorna um \textit{JSON Web Token} (JWT). Para garantir a persistência da sessão e permitir a navegação entre as diferentes rotas da aplicação sem a necessidade de novos \textit{logins}, este token, juntamente com dados não sensíveis de perfil (como nome e nível de acesso), é armazenado no \textbf{LocalStorage} do navegador do cliente.
 
@@ -382,7 +383,7 @@ Esta abordagem permite que o \textit{frontend} anexe o token automaticamente ao 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{images/tela_login.png}
-    \caption{Tela de autenticação do sistema NaraPsi. Fonte: Autor}
+    \caption{Tela de autenticação do sistema NaraPsi. Fonte: elaborado pelo autor (2026).}
     \label{fig:tela-login}
 \end{figure}
 
@@ -396,7 +397,7 @@ No centro da interface, destaca-se um componente de visualização de dados do t
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{images/dash_psicologo.png}
-    \caption{Dashboard do psicólogo na plataforma NaraPsi. Fonte: Autor}
+    \caption{Painel do psicólogo na plataforma NaraPsi. Fonte: elaborado pelo autor (2026).}
     \label{fig:dashboard-psicologo}
 \end{figure}
 
@@ -412,7 +413,7 @@ Cada linha da tabela apresenta atributos essenciais: identificação do paciente
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{images/pacientes_psicologo.png}
-    \caption{Tela de gerenciamento de pacientes. Fonte: Autor}
+    \caption{Tela de gerenciamento de pacientes. Fonte: elaborado pelo autor (2026).}
     \label{fig:pacientes-psicologo}
 \end{figure}
 
@@ -434,14 +435,14 @@ O \textit{design} utiliza elementos de \textit{feedback} visual, como etiquetas 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{images/prontuário_psicologo.png}
-    \caption{Interface de prontuário clínico do paciente. Fonte: Autor}
+    \caption{Interface do prontuário clínico do paciente. Fonte: elaborado pelo autor (2026).}
     \label{fig:prontuario}
 \end{figure}
 
 
 \subsection{Assistente de Inteligência Artificial (Nara IA)}
 
-A Figura~\ref{fig:assistente-ia} ilustra a interface do assistente virtual inteligente, denominado Nara IA, integrado de forma contextual ao prontuário do paciente. Diferente de ferramentas de chat genéricas, este componente foi projetado como um agente especializado que opera exclusivamente sobre o conjunto de dados clínicos do paciente em visualização, respeitando o isolamento de dados entre diferentes prontuários.
+A Figura~\ref{fig:assistente-ia} ilustra a interface do assistente denominado Nara IA, integrado de forma contextual ao prontuário do paciente. O componente foi projetado para formular respostas a partir dos dados clínicos recuperados para o prontuário em visualização, respeitando o isolamento de dados entre pacientes.
 
 A interface utiliza o padrão de \textit{chatbot} para permitir que o psicólogo realize consultas em linguagem natural sobre o histórico terapêutico. No exemplo apresentado, observa-se a capacidade do sistema de empregar PLN para extrair informações específicas, como a "queixa principal", a partir de múltiplos relatos de sessões anteriores.
 
@@ -450,7 +451,7 @@ Tecnicamente, o componente implementa uma arquitetura de \textit{prompting} que 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.3\linewidth]{images/assistente_ia.png}
-    \caption{Interface do assistente de inteligência artificial da plataforma. Fonte: Autor}
+    \caption{Interface do assistente de inteligência artificial da plataforma. Fonte: elaborado pelo autor (2026).}
     \label{fig:assistente-ia}
 \end{figure}
 
@@ -471,7 +472,7 @@ Ressalta-se que, em conformidade com o sigilo terapêutico e as regras de negóc
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{images/dashboard_administrativo.png}
-    \caption{Dashboard administrativo da plataforma. Fonte: Autor}
+    \caption{Painel administrativo da plataforma. Fonte: elaborado pelo autor (2026).}
     \label{fig:dashboard-admin}
 \end{figure}
 
@@ -493,7 +494,7 @@ O design da tela prioriza a densidade de informação sem comprometer a legibili
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\linewidth]{images/usuários_adm.png}
-    \caption{Interface de gerenciamento de usuários da plataforma. Fonte: Autor}
+    \caption{Interface de gerenciamento de usuários da plataforma. Fonte: elaborado pelo autor (2026).}
     \label{fig:usuarios-admin}
 \end{figure}
 
@@ -507,20 +508,39 @@ A aplicação é estruturada em \textit{frontend}, \textit{backend}, bancos e se
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.5\linewidth]{images/Diagrama de Arquitetura do Sistema.png}
-    \caption{Diagrama de Arquitetura do Sistema. Fonte: Autor}
-    \label{fig:Diagrama-Arquitetura-Sistemal}
+    \begin{tikzpicture}[
+        node distance=1.15cm and 1.45cm,
+        bloco/.style={draw, rounded corners, align=center, minimum width=2.8cm, minimum height=1cm, fill=gray!8},
+        servico/.style={draw, align=center, minimum width=2.7cm, minimum height=0.9cm, fill=blue!5},
+        fluxo/.style={-{Latex[length=2.2mm]}, thick}
+    ]
+        \node[bloco] (front) {\textit{Frontend}\\React};
+        \node[bloco, right=of front] (back) {\textit{Backend}\\FastAPI};
+        \node[servico, above right=0.25cm and 1.4cm of back] (click) {Clicksign\\assinatura eletrônica};
+        \node[servico, right=of back] (minio) {MinIO\\arquivos};
+        \node[servico, below right=0.25cm and 1.4cm of back] (mysql) {MySQL\\dados relacionais};
+        \node[servico, below=of back] (qwen) {Qwen2.5-3B-Instruct\\inferência local};
+
+        \draw[fluxo,<->] (front) -- node[above, font=\scriptsize] {API REST} (back);
+        \draw[fluxo,<->] (back) -- (click);
+        \draw[fluxo,<->] (back) -- (minio);
+        \draw[fluxo,<->] (back) -- (mysql);
+        \draw[fluxo,<->] (back) -- (qwen);
+    \end{tikzpicture}
+    \par\vspace{0.5cm}
+    \caption{Diagrama de arquitetura do sistema. Fonte: elaborado pelo autor (2026).}
+    \label{fig:arquitetura-sistema}
 \end{figure}
 
 \subsection{Caso de Uso}
 
-O diagrama de casos de uso tem como objetivo representar as interações entre os atores e o sistema, evidenciando as funcionalidades oferecidas pela plataforma. Na Figura~\ref{fig:Diagrama-caso-uso} apresenta-se o diagrama de casos de uso, onde é possível visualizar as funcionalidades organizadas de acordo com os atores envolvidos.
+O diagrama de casos de uso representa as interações entre os atores e o sistema, evidenciando as funcionalidades oferecidas pela plataforma. A Figura~\ref{fig:diagrama-casos-uso} apresenta essas funcionalidades organizadas de acordo com os atores envolvidos.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\linewidth]{images/Diagrama de caso de uso.png}
-    \caption{Diagrama de Caso de Uso. Fonte: Autor}
-    \label{fig:Diagrama-caso-uso}
+    \caption{Diagrama de casos de uso. Fonte: elaborado pelo autor (2026).}
+    \label{fig:diagrama-casos-uso}
 \end{figure}
 
 \section{Testes e Resultados}
