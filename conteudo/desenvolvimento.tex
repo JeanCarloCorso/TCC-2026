@@ -34,7 +34,7 @@ Posteriormente foram integradas funcionalidades mais avançadas, como geração 
 
 \textbf{Verificações funcionais} Cada funcionalidade implementada passou por verificações funcionais manuais ao longo dos ciclos de desenvolvimento. Nessas verificações, foram exercitados os fluxos da interface e as integrações entre os componentes, com o objetivo de conferir a execução das operações e a persistência das informações manipuladas pelo sistema. O procedimento não constituiu uma suíte automatizada.
 
-\textbf{Validação} As funcionalidades implementadas foram verificadas quanto ao atendimento dos requisitos selecionados, ao comportamento dos controles de acesso e ao tempo de resposta do componente de inteligência artificial. A organização visual e a consistência das interfaces foram revisadas pelo autor durante o desenvolvimento, sem condução de ensaio de usabilidade com usuários. Os procedimentos e os critérios empregados são apresentados na Seção~\ref{sec:testes-resultados}.
+\textbf{Validação} As funcionalidades implementadas foram verificadas quanto ao atendimento dos requisitos selecionados, ao comportamento dos controles de acesso e ao tempo de resposta do componente de inteligência artificial. A organização visual e a consistência das interfaces foram revisadas pelo autor durante o desenvolvimento, sem condução de ensaio de usabilidade com usuários. Os procedimentos e os critérios empregados são apresentados no Capítulo~\ref{chap:resultados-discussao}.
 
 \subsection{Histórias de Usuários}
 
@@ -576,16 +576,16 @@ O diagrama de casos de uso representa as interações entre os atores e o sistem
     \label{fig:diagrama-casos-uso}
 \end{figure}
 
-\section{Testes e Resultados}
-\label{sec:testes-resultados}
+\chapter{RESULTADOS E DISCUSSÃO}
+\label{chap:resultados-discussao}
 
-\subsection{Metodologia e ambiente de avaliação}
+\section{Metodologia e ambiente de avaliação}
 
-A avaliação foi dividida em dois grupos: testes funcionais e de integração da plataforma e protocolo específico para o componente de inteligência artificial. Todos os dados clínicos empregados foram fictícios. A execução ocorreu em sistema Linux, em computador com processador AMD Ryzen 7 3700U, 13~GiB de memória RAM e recursos gráficos AMD Radeon Vega e Radeon 540X.
+A avaliação compreendeu os casos funcionais e de integração da plataforma e o protocolo específico da inteligência artificial. Registros de pacientes reais não foram utilizados em razão do sigilo das informações clínicas. Em seu lugar, empregaram-se dados fictícios baseados em situações reais e validados por uma profissional da área da psicologia. A execução ocorreu em sistema Linux, em computador com processador AMD Ryzen 7 3700U, 13~GiB de memória RAM e recursos gráficos AMD Radeon Vega e Radeon 540X.
 
 Durante o desenvolvimento, os fluxos funcionais e as integrações foram verificados manualmente a cada incremento da plataforma. Os casos apresentados no Quadro~\ref{qua:casos-funcionais} sistematizam essas verificações ao explicitar a entrada, o procedimento e o critério de aceitação. A plataforma ainda não dispõe de uma suíte automatizada que cubra integralmente esses fluxos; portanto, os resultados funcionais caracterizam a validação manual do protótipo no ambiente de desenvolvimento, e não uma avaliação de produção ou um ensaio independente.
 
-\subsection{Casos funcionais e de integração}
+\section{Resultados funcionais e de integração}
 
 Cada caso foi identificado por um código, uma entrada, um procedimento e um critério verificável. Os casos positivos exercitam fluxos válidos, enquanto os negativos verificam a rejeição de entradas ou acessos indevidos.
 
@@ -617,7 +617,7 @@ O protocolo totalizou oito casos: cinco positivos e três negativos. Na execuç�
 
 Embora essa execução confirme o comportamento dos fluxos selecionados, a verificação manual não substitui testes automatizados de regressão, carga e segurança. A reprodução futura deverá registrar a revisão do código, as requisições, as respostas e os estados inicial e final dos serviços.
 
-\subsection{Protocolo de avaliação da inteligência artificial}
+\section{Protocolo de avaliação da inteligência artificial}
 
 O protocolo da IA foi executado diretamente no ambiente Docker da aplicação, com o modelo Qwen2.5-3B-Instruct no arquivo \texttt{Q4\_K\_M.gguf}. Foram mantidos os parâmetros empregados pela plataforma: janela de 10.240 \textit{tokens}, limite de 1.024 \textit{tokens} de saída, seis \textit{threads}, lote de 512, 25 camadas destinadas à GPU, temperatura de 0,7, \textit{top-p} de 0,95 e penalidade de repetição de 1,1. Cada caso foi executado uma vez, sem reutilização de histórico conversacional.
 
@@ -632,7 +632,7 @@ A latência correspondeu ao intervalo entre a chamada de geração e o recebimen
 
 em que $P_s$ representa o número de proposições sem suporte no contexto e $P_t$ o total de proposições clínicas verificáveis produzidas.
 
-\subsection{Resultados observados da inteligência artificial}
+\section{Resultados observados da inteligência artificial}
 
 O Quadro~\ref{qua:resultados-ia} apresenta exclusivamente os valores observados na execução. Os textos integrais de entradas e saídas representativas constam no Apêndice~A.
 
@@ -687,13 +687,13 @@ Na segmentação manual, foram identificadas dez proposições clínicas verific
 
 A distribuição $P_s/P_t$ por caso foi: IA-01, 0/2; IA-02, 0/0; IA-03, 0/0; IA-04, 0/3; IA-05, 0/0; e IA-06, 2/5. Essa explicitação permite reproduzir o cálculo, embora a delimitação de proposições permaneça sujeita ao julgamento do avaliador.
 
-\subsection{Interpretação e limitações}
+\section{Interpretação dos resultados da inteligência artificial}
 
 Os resultados indicam que o \textit{prompt} restritivo foi eficaz nos três cenários negativos desta execução, inclusive diante de tentativa explícita de substituição das instruções. Entretanto, o desvio do caso IA-06 demonstra que uma resposta fluente pode introduzir informação não registrada. A geração local e o uso de instruções delimitadoras, portanto, reduzem determinados riscos, mas não eliminam alucinações.
 
 A amostra de seis casos é exploratória, cada caso foi executado uma única vez e a segmentação das proposições foi realizada pelo autor, que também desenvolveu a plataforma. A temperatura diferente de zero admite variação entre execuções; por isso, os percentuais não devem ser generalizados como taxa de segurança do modelo. A latência também depende do tamanho da entrada e da saída, do estado do computador e do aproveitamento dos recursos gráficos. Não foram medidos tempo até o primeiro \textit{token}, consumo de memória ou energia.
 
-\subsection{Possibilidade de modelos maiores e infraestrutura computacional}
+\section{Possibilidade de modelos maiores e infraestrutura computacional}
 
 A família Qwen2.5 disponibiliza modelos densos com 3, 7, 14 e 32 bilhões de parâmetros, entre outros tamanhos. Os resultados divulgados pelos desenvolvedores indicam aumento de capacidade em diferentes tarefas à medida que se ampliam os modelos, embora esses resultados não tenham sido produzidos no domínio da psicologia clínica e, portanto, não comprovem melhoria na NaraPsi \cite{qwen2024qwen25}. Um modelo maior pode apresentar melhor seguimento de instruções, síntese de históricos extensos e preservação de relações temporais. Entretanto, também aumenta o consumo de memória, a latência e a capacidade de produzir informações incorretas com aparência plausível.
 
@@ -731,7 +731,49 @@ Na máquina utilizada neste trabalho, os 13~GiB de RAM são compartilhados com o
 
 A adoção de um modelo maior somente poderá ser considerada melhoria se produzir resultados superiores sob o mesmo protocolo experimental. A comparação deve manter constantes os dados fictícios, as instruções, a janela de contexto e os critérios de avaliação, além de registrar latência, consumo máximo de RAM e VRAM, quantidade de proposições sem suporte e variação entre repetições. Dessa forma, evita-se associar o aumento do número de parâmetros, de maneira automática, à redução de alucinações.
 
-Em consequência, as saídas devem permanecer caracterizadas como minutas. Antes da inserção em documento clínico ou de sua assinatura, o profissional responsável deve confrontar cada afirmação com o prontuário. Como continuidade experimental, recomenda-se ampliar o conjunto, realizar repetições com sementes controladas, empregar dois avaliadores independentes e registrar automaticamente latência, contagem de \textit{tokens} e versão do modelo.
+\section{Discussão em relação aos objetivos}
+
+O objetivo geral propôs desenvolver e avaliar uma plataforma web para o gerenciamento seguro de documentos psicoterapêuticos, com mecanismos de proteção, rastreabilidade, assinatura eletrônica e inferência local. O desenvolvimento da plataforma e os resultados apresentados fornecem evidências sobre a integração técnica desses componentes. Entretanto, o termo ``seguro'' deve ser interpretado no limite dos controles implementados e dos casos executados: o trabalho não realizou auditoria externa de segurança, ensaio de invasão ou avaliação jurídica de conformidade. Também não houve operação com registros de pacientes reais, pois essas informações são sigilosas. Para aproximar a avaliação de situações da prática profissional sem expor dados pessoais, foram utilizados dados fictícios baseados em situações reais e validados por uma profissional da área da psicologia.
+
+O Quadro~\ref{qua:objetivos-resultados} relaciona cada objetivo específico à evidência produzida e ao aspecto que permaneceu sem verificação. A distinção evita que a implementação de um mecanismo seja confundida com a validação integral de sua eficácia em produção.
+
+\begin{quadro}[H]
+\centering
+\caption{Relação entre objetivos, resultados e aspectos não verificados}
+\label{qua:objetivos-resultados}
+\footnotesize
+\renewcommand{\arraystretch}{1.16}
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}X|>{\raggedright\arraybackslash}X|}
+\hline
+\textbf{Objetivo específico} & \textbf{Evidência obtida} & \textbf{Aspecto não verificado} \\ \hline
+Especificar requisitos e regras de negócio & Requisitos funcionais e não funcionais, regras de negócio e fluxos foram documentados no Capítulo 3. & A completude e a adequação dos requisitos não foram avaliadas com uma amostra representativa de profissionais. \\ \hline
+Implementar a arquitetura web e os controles técnicos & Os casos F-01 a F-07 exercitaram autenticação, autorização, persistência, anexos e auditoria no ambiente de desenvolvimento. & Não foram executados ensaios de invasão, carga, recuperação de desastres ou auditoria independente de conformidade com a LGPD. \\ \hline
+Integrar a assinatura eletrônica & O caso F-08 enviou documento fictício ao ambiente de testes da Clicksign e recuperou o estado retornado. & Não foram avaliados o uso em produção, a indisponibilidade prolongada do serviço ou a validade de documentos em situações reais. \\ \hline
+Integrar o modelo executado localmente & Os seis casos comprovaram a execução local de consultas e sínteses condicionadas ao contexto, com cinco aprovações integrais. & Não foram demonstradas ausência de alucinações, segurança clínica, generalização para outros casos ou superioridade sobre outros modelos. \\ \hline
+Verificar funcionalidades e integrações & Os oito casos funcionais atenderam aos critérios definidos e produziram evidência dos fluxos selecionados. & Não houve suíte automatizada, repetição sistemática, validação independente ou cobertura integral dos caminhos de erro. \\ \hline
+\end{tabularx}
+\par\vspace{0.6em}
+\begin{flushleft}
+\footnotesize Fonte: Elaborado pelo autor (2026).
+\end{flushleft}
+\end{quadro}
+
+Os resultados funcionais sustentam que a arquitetura foi integrada de forma suficiente para executar os fluxos selecionados. Eles não permitem estimar a taxa de falhas da plataforma nem seu comportamento sob concorrência, indisponibilidade parcial ou uso prolongado. De modo semelhante, o protocolo da inteligência artificial demonstra viabilidade técnica no equipamento utilizado, mas a reprovação do caso IA-06 impede caracterizar o componente como fonte autônoma de informação clínica.
+
+\section{Relação com os trabalhos relacionados}
+
+Os resultados obtidos preservam o diferencial de integração apresentado no Capítulo 2, mas não estabelecem superioridade sobre os demais estudos. Enquanto \citeonline{souza2024recuperacao} investigaram a recuperação de termos em prontuários ginecológicos e \citeonline{santos2024classificacao} empregaram BERT na classificação de códigos CID em internações neonatais, a NaraPsi reuniu consultas contextuais e geração de minutas em um fluxo de gestão documental direcionado à psicologia clínica. A execução dos casos de IA demonstra o funcionamento dessa integração, mas a amostra reduzida não permite comparar acurácia, cobertura ou utilidade clínica entre as abordagens.
+
+Em relação à segurança, \citeonline{magnagnagno2020seguranca} discutiram criptografia e certificados digitais em ambientes hospitalares, e \citeonline{tertulino2024privacidade} destacaram privacidade, autenticação, rastreabilidade e LGPD em prontuários eletrônicos. A NaraPsi materializou parte desses requisitos por meio de autenticação, controle de acesso, proteção de campos e arquivos e registros de auditoria. Os casos F-01, F-02, F-04 e F-07 forneceram evidência funcional desses mecanismos; contudo, não substituem uma análise formal de segurança ou de conformidade legal.
+
+Assim, a contribuição observada consiste na reunião, em um único protótipo, de gestão documental, controles técnicos, assinatura eletrônica e inferência local. A avaliação confirma que esses componentes podem operar de forma integrada nos cenários executados, ao mesmo tempo que delimita a necessidade de validação com usuários, ampliação dos testes e análise independente.
+
+\section{Síntese das limitações e continuidade da avaliação}
+
+As principais limitações decorrem do caráter exploratório da avaliação. Embora os dados fictícios tenham sido baseados em situações reais e validados por uma profissional da área da psicologia, o protocolo não empregou registros reais, em respeito ao sigilo das informações clínicas. Os casos funcionais foram executados manualmente pelo autor; os casos da inteligência artificial foram executados uma única vez; e não houve participação de usuários na avaliação das interfaces. Também não foram medidos consumo de memória, energia, tempo até o primeiro \textit{token}, capacidade sob concorrência ou recuperação após falhas dos serviços.
+
+Em consequência, as saídas devem permanecer caracterizadas como minutas. Antes da inserção em documento clínico ou de sua assinatura, o profissional responsável deve confrontar cada afirmação com o prontuário. Como continuidade experimental, recomenda-se automatizar os casos funcionais, ampliar o conjunto de entradas da IA, realizar repetições com sementes controladas, empregar dois avaliadores independentes e registrar automaticamente latência, contagem de \textit{tokens}, consumo de recursos e versão do modelo.
 
 % 
 %--------- FIM DESENVOLVIMENTO------------
