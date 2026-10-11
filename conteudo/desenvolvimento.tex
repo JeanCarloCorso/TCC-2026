@@ -324,20 +324,44 @@ Nos eventos classificados como sensíveis, os valores anterior e novo são cript
 
 Considerando a natureza sensível das informações manipuladas pelo sistema, foram implementados mecanismos de segurança destinados à proteção dos dados. A análise desenvolvida neste trabalho restringe-se aos controles técnicos presentes no protótipo. Não integram o escopo da avaliação a definição da base legal aplicável a cada operação de tratamento, a gestão de consentimento, os procedimentos para atendimento aos direitos dos titulares, os prazos de retenção, o relatório de impacto à proteção de dados e o processo organizacional de resposta a incidentes.
 
-Para melhor compreensão do processo de autenticação implementado na plataforma, a Figura~\ref{fig:fluxo-autenticacao} apresenta o diagrama de sequência que descreve o fluxo completo de validação das credenciais, geração do token de acesso e registro do evento de autenticação no sistema.
+Para melhor compreensão do processo de autenticação implementado na plataforma, a Figura~\ref{fig:fluxo-autenticacao} apresenta o fluxo de validação das credenciais, criação da sessão autenticada e registro do evento de acesso.
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\linewidth]{images/fluxo_autenticacao.png}
+\begin{tikzpicture}[
+    node distance=0.72cm,
+    etapa/.style={draw, rounded corners, align=center, text width=12.7cm,
+        minimum height=0.85cm, font=\small, inner sep=5pt},
+    fluxo/.style={-{Latex[length=2.2mm]}, thick}
+]
+\node[etapa] (credenciais) {1. O usuário informa nome de acesso e senha; o React envia \texttt{POST /api/v1/login} com as credenciais.};
+\node[etapa, below=of credenciais] (validacao) {2. O FastAPI consulta o usuário no MySQL, verifica a senha com \textit{bcrypt} e confirma se o acesso está ativo.};
+\node[etapa, below=of validacao] (cookie) {3. O \textit{backend} gera o JWT assinado e o envia no cabeçalho \texttt{Set-Cookie}, sob o nome \texttt{narapsi\_session}, com \texttt{HttpOnly}, \texttt{SameSite=Lax}, expiração correspondente à do JWT e atributo \texttt{Secure} configurável.};
+\node[etapa, below=of cookie] (resposta) {4. O corpo da resposta contém somente o nome e os perfis. Esses dados compõem a sessão React mantida em memória; o JWT não é exposto ao código do \textit{frontend}.};
+\node[etapa, below=of resposta] (requisicoes) {5. Nas requisições posteriores, o navegador envia o \textit{cookie} automaticamente. O FastAPI extrai e valida o JWT antes de autorizar o acesso ao recurso.};
+\node[etapa, below=of requisicoes] (restauracao) {6. Após o recarregamento da página, \texttt{GET /api/v1/session} restaura o nome e os perfis; no encerramento, \texttt{POST /api/v1/logout} remove o \textit{cookie}.};
+\node[etapa, below=of restauracao] (auditoria) {7. As tentativas de autenticação e o encerramento da sessão originam eventos encaminhados à fila Redis para processamento pelo \textit{worker} de auditoria.};
+
+\draw[fluxo] (credenciais) -- (validacao);
+\draw[fluxo] (validacao) -- (cookie);
+\draw[fluxo] (cookie) -- (resposta);
+\draw[fluxo] (resposta) -- (requisicoes);
+\draw[fluxo] (requisicoes) -- (restauracao);
+\draw[fluxo] (restauracao) -- (auditoria);
+\end{tikzpicture}
 \caption{Fluxo de autenticação da plataforma NaraPsi. Fonte: elaborado pelo autor (2026).}
 \label{fig:fluxo-autenticacao}
 \end{figure}
 
-Conforme ilustrado no diagrama, o processo inicia-se quando o psicólogo insere suas credenciais na interface de login da aplicação. O frontend envia uma requisição ao endpoint de autenticação da API backend, que realiza a validação das credenciais consultando a tabela de usuários no banco de dados. A senha informada é comparada com o hash armazenado utilizando o algoritmo bcrypt. Em caso de validação bem-sucedida, o sistema gera um token JWT contendo o identificador do usuário e atualiza o registro de último acesso. Adicionalmente, um evento de auditoria é enviado para a fila de logs, garantindo o registro da tentativa de autenticação no sistema.
+Conforme ilustrado no diagrama, o processo inicia-se quando o usuário insere suas credenciais na interface de \textit{login}. O \textit{frontend} envia os dados ao \textit{endpoint} de autenticação, e o \textit{backend} consulta a tabela de usuários, compara a senha informada com o \textit{hash} \textit{bcrypt} armazenado e verifica se o acesso está ativo. Em caso de sucesso, o sistema atualiza o registro de último acesso, cria o JWT e o associa ao \textit{cookie} de sessão. O evento de autenticação é encaminhado à fila Redis e posteriormente persistido pelo \textit{worker} de auditoria.
 
 \subsection{Autenticação} 
 
-A autenticação dos usuários é realizada via \textit{Bearer Tokens} no padrão \textit{JWT} (\textit{JSON Web Tokens}). Após a validação das credenciais (\textit{POST /auth/login}), o sistema gera um \textit{token stateless} que encapsula o \textit{payload} de identificação do usuário, permitindo o tráfego seguro de autorizações entre o cliente e o servidor. 
+A autenticação utiliza um JWT (\textit{JSON Web Token}) assinado, que contém o identificador do usuário e possui tempo de expiração configurável. Após a validação das credenciais pelo \textit{endpoint} de \textit{login}, o \textit{backend} grava o \textit{token} no \textit{cookie} \texttt{narapsi\_session}. O corpo da resposta não contém o JWT, mas somente o nome e os perfis necessários à interface. Nas requisições subsequentes, o navegador envia o \textit{cookie}, e a API extrai e valida o \textit{token} antes de recuperar o usuário correspondente no banco de dados.
+
+O \textit{cookie} é configurado com o atributo \texttt{HttpOnly}, que impede seu acesso direto por código JavaScript, e com \texttt{SameSite=Lax}, que restringe seu envio em parte dos contextos de navegação entre sítios distintos. Seu prazo de expiração corresponde ao prazo definido para o JWT. O atributo \texttt{Secure} é controlado por configuração do ambiente e deve permanecer habilitado em implantações servidas por HTTPS, para que o navegador não transmita o \textit{cookie} por conexões HTTP.
+
+No \textit{frontend}, o cliente Axios foi configurado com \texttt{withCredentials: true}; não é construído o cabeçalho \texttt{Authorization: Bearer}. O estado da autenticação é representado por uma sessão React mantida em memória, utilizada pelos controles de rota, pelo menu lateral, pela barra superior e pelos redirecionamentos. Quando a página é recarregada, o \textit{endpoint} \texttt{GET /api/v1/session} valida o \textit{cookie} e restitui o nome e os perfis. O \textit{logout} remove o \textit{cookie} por meio do \textit{backend}. Assim, nome, perfis e JWT não são persistidos no \textit{LocalStorage}; apenas a preferência visual de tema permanece nesse mecanismo, por não constituir dado de autenticação.
 
 O controle de acesso é implementado sob o paradigma de \textit{RBAC} (\textit{Role-Based Access Control}), onde as permissões são validadas de forma granular através de \textit{middlewares} que verificam os perfis vinculados ao usuário na base de dados relacional.
 
@@ -374,11 +398,11 @@ Esta seção apresenta algumas das principais interfaces do sistema NaraPsi, com
 
 \subsection{Tela de Login}
 
-A Figura~\ref{fig:tela-login} ilustra a interface de autenticação da plataforma NaraPsi. O controle de acesso utiliza \textit{tokens} JWT e valida as credenciais informadas a partir dos \textit{hashes} armazenados no banco de dados. Na configuração de desenvolvimento, o tráfego pode ocorrer por HTTP; a confidencialidade das credenciais e do \textit{token} em trânsito depende, portanto, da configuração de HTTPS/TLS na infraestrutura de implantação.
+A Figura~\ref{fig:tela-login} ilustra a interface de autenticação da plataforma NaraPsi. Ao receber o nome de usuário e a senha, o \textit{backend} consulta o cadastro correspondente e compara a senha informada com o \textit{hash} \textit{bcrypt} armazenado no MySQL. Quando as credenciais são válidas, a API emite um JWT assinado, que identifica o usuário nas requisições posteriores, e o armazena no \textit{cookie} \texttt{narapsi\_session}. A assinatura permite verificar a autenticidade do \textit{token}, mas não cifra as credenciais, seu conteúdo ou o canal de comunicação.
 
-Após a validação bem-sucedida, o servidor retorna um \textit{JSON Web Token} (JWT). Para garantir a persistência da sessão e permitir a navegação entre as diferentes rotas da aplicação sem a necessidade de novos \textit{logins}, este token, juntamente com dados não sensíveis de perfil (como nome e nível de acesso), é armazenado no \textbf{LocalStorage} do navegador do cliente.
+O JWT não é retornado no corpo da resposta nem armazenado no \textit{LocalStorage}. O atributo \texttt{HttpOnly} reduz a exposição do \textit{token} a scripts executados no navegador, embora não elimine os impactos de vulnerabilidades de \textit{cross-site scripting} sobre as ações realizadas pela aplicação. A restauração da interface após uma atualização da página ocorre mediante consulta ao \textit{endpoint} de sessão, sem persistir no navegador o nome, os perfis ou o JWT.
 
-Esta abordagem permite que o \textit{frontend} anexe o token automaticamente ao cabeçalho de autorização (\textit{Authorization Header}) de todas as requisições subsequentes via protocolo TLS, assegurando a integridade e a autenticidade da comunicação. Além disso, a gestão via \textit{LocalStorage} possibilita que o estado da aplicação seja mantido mesmo após o fechamento ou atualização da aba do navegador, otimizando a experiência de uso do profissional.
+O protótipo não incorpora terminação TLS e admite comunicação por HTTP no ambiente de desenvolvimento. Portanto, nessa configuração, as credenciais, o JWT e os demais dados transmitidos não recebem proteção criptográfica durante o trânsito. Para uma implantação que trate dados reais, a aplicação deve ser publicada exclusivamente por HTTPS, com certificado válido, terminação TLS fornecida pela infraestrutura, como um \textit{proxy} reverso, e a opção \texttt{Secure} habilitada para o \textit{cookie} de sessão. Essa camada é necessária para proporcionar confidencialidade e integridade dos dados em trânsito e autenticação do servidor, conforme o requisito RNF7 e a arquitetura descrita na Seção~\ref{sec:arquitetura-diagrama}.
 
 \begin{figure}[H]
     \centering
@@ -503,6 +527,7 @@ O design da tela prioriza a densidade de informação sem comprometer a legibili
 Os diagramas produzidos nesta seção visam ilustrar a arquitetura, o comportamento e a estrutura da plataforma.
 
 \subsection{Arquitetura}
+\label{sec:arquitetura-diagrama}
 
 A aplicação é estruturada em \textit{frontend}, \textit{backend}, serviços de persistência e componentes auxiliares. O React consome a API FastAPI; a proteção por HTTPS/TLS é responsabilidade da infraestrutura de implantação. O \textit{backend} acessa o esquema principal do MySQL, armazena arquivos no MinIO, integra-se à Clicksign e executa localmente o Qwen2.5-3B-Instruct no mesmo processo da aplicação. Para a auditoria, os eventos são cifrados e enfileirados no Redis, configurado com persistência AOF. Um contêiner independente, denominado \texttt{audit\_worker}, transfere atomicamente cada mensagem para uma fila de processamento, realiza até cinco tentativas e encaminha as falhas persistentes para uma fila de mensagens não processadas. Durante esse fluxo, o \textit{worker} cifra os campos sensíveis, calcula o encadeamento SHA-256 e persiste os registros no esquema \texttt{auditoria} do MySQL. A Figura~\ref{fig:arquitetura-sistema} representa esses componentes e seus principais fluxos.
 
@@ -587,7 +612,7 @@ F-08 & Positivo & Enviar documento fictício ao ambiente de testes da Clicksign 
 \fonte{Elaborado pelo autor (2026).}
 \end{quadro}
 
-O protocolo totalizou oito casos: cinco positivos e três negativos. Na execução manual, os casos F-01 e F-02 confirmaram, respectivamente, a autenticação com credenciais válidas e a rejeição de credenciais ou requisições sem autenticação. Os casos F-03 e F-04 confirmaram a persistência dos dados do paciente e o bloqueio de acesso a prontuário não associado ao profissional. Nos casos F-05 e F-06, o fluxo de anexos recuperou o arquivo válido e tratou a operação inválida sem criação indevida de objeto. O caso F-07 produziu o evento de auditoria correspondente à operação executada. Por fim, o caso F-08 enviou o documento fictício ao ambiente de testes da Clicksign e permitiu consultar o estado retornado pela integração. Assim, os oito casos atenderam aos respectivos critérios de aceitação no ambiente avaliado.
+O protocolo totalizou oito casos: cinco positivos e três negativos. Na execução manual, os casos F-01 e F-02 confirmaram, respectivamente, a autenticação com credenciais válidas e a rejeição de credenciais ou requisições sem autenticação. Os casos F-03 e F-04 confirmaram a persistência dos dados do paciente e o bloqueio de acesso a prontuário não associado ao profissional. Nos casos F-05 e F-06, o fluxo de anexos recuperou o arquivo válido e tratou a operação inválida sem criação indevida de objeto. O caso F-07 produziu o evento de auditoria correspondente à operação executada. Por fim, o caso F-08 enviou o documento fictício ao ambiente de testes da Clicksign e permitiu consultar o estado retornado pela integração. Assim, os oito casos atenderam aos respectivos critérios de aceitação no ambiente de desenvolvimento utilizado neste trabalho.
 
 Embora essa execução confirme o comportamento dos fluxos selecionados, a verificação manual não substitui testes automatizados de regressão, carga e segurança. A reprodução futura deverá registrar a revisão do código, as requisições, as respostas e os estados inicial e final dos serviços.
 
